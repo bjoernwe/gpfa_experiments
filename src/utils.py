@@ -2,6 +2,21 @@ import numpy as np
 import sys
 
 
+def update_seed_argument(remove_args=None, **kwargs):
+    """
+    Helper function that replaces the the seed argument by a new seed that
+    depends on all arguments. If repetition_index is given it will be removed.
+    """
+    new_seed = hash(frozenset(kwargs.items())) % np.iinfo(np.uint32).max
+    if 'repetition_index' in kwargs:
+        kwargs.pop('repetition_index')
+    if remove_args:
+        for arg in remove_args:
+            if arg in kwargs:
+                kwargs.pop(arg)
+    kwargs['seed'] = new_seed
+    return kwargs
+
 
 def principal_angles(A, B):
     """A and B must be column-orthogonal.
@@ -21,7 +36,6 @@ def principal_angles(A, B):
     return np.min(angles), np.max(angles)
 
 
-
 def format_arg_value(arg_val):
     """ Return a string representing a (name, value) pair.
     
@@ -33,8 +47,7 @@ def format_arg_value(arg_val):
         return '%s=numpy.ndarray<%s>' % (arg, val.shape)
     return "%s=%r" % (arg, val)
     
-    
-    
+
 def echo(fn, write=sys.stdout.write):
     """ Echo calls to a function.
     
@@ -63,7 +76,6 @@ def echo(fn, write=sys.stdout.write):
         write("%s(%s)\n\n" % (fn.__name__, ", ".join(args)))
         return fn(*v, **k)
     return wrapped
-
 
 
 def echo_on_exception(fn, write=sys.stdout.write):
@@ -98,6 +110,55 @@ def echo_on_exception(fn, write=sys.stdout.write):
             raise
     return wrapped
 
+
+def get_dataset_name(env, ds, latex=False):
+    result = 'FOO'
+
+    if env is EnvData:
+        if ds is env_data.Datasets.STFT1:
+            result = 'AUD_STFT1'
+        elif ds is env_data.Datasets.STFT2:
+            result = 'AUD_STFT2'
+        elif ds is env_data.Datasets.STFT3:
+            result = 'AUD_STFT3'
+        elif ds is env_data.Datasets.EEG:
+            result = 'PHY_EEG_GAL'
+        elif ds is env_data.Datasets.EEG2:
+            result = 'PHY_EEG_BCI'
+        elif ds is env_data.Datasets.PHYSIO_EHG:
+            result = 'PHY_EHG'
+        elif ds is env_data.Datasets.EIGHT_EMOTION:
+            result = 'PHY_EIGHT_EMOTION'
+        elif ds is env_data.Datasets.PHYSIO_MGH:
+            result = 'PHY_MGH_MF'
+        elif ds is env_data.Datasets.PHYSIO_MMG:
+            result = 'PHY_MMG'
+        elif ds is env_data.Datasets.PHYSIO_UCD:
+            result = 'PHY_UCDDB'
+        elif ds is env_data.Datasets.HAPT:
+            result = 'MISC_SBHAR'
+        elif ds is env_data.Datasets.FIN_EQU_FUNDS:
+            result = 'MISC_EQUITY_FUNDS'
+        else:
+            assert False
+    elif env is EnvData2D:
+        if ds is env_data2d.Datasets.Mario:
+            result = 'VIS_SUPER_MARIO'
+        elif ds is env_data2d.Datasets.SpaceInvaders:
+            result = 'VIS_SPACE_INVADERS'
+        elif ds is env_data2d.Datasets.Traffic:
+            result = 'VIS_URBAN1'
+        else:
+            assert False
+    elif env is EnvRandom:
+        result = 'MISC_NOISE'
+    else:
+        assert False
+
+    if latex:
+        result = result.replace('_', '\_')
+
+    return result
 
 
 @echo_on_exception
