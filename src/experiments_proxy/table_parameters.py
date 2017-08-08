@@ -4,7 +4,7 @@ import mkl
 import numpy as np
 import scipy.stats
 
-import experiments_proxy.experiment_base as eb
+import experiments_proxy.experiment_base_proxy as eb
 import parameters
 import parameters_hi
 

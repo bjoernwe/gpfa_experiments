@@ -4,7 +4,8 @@ import numpy as np
 
 import explot as ep
 
-import experiments_proxy.experiment_base as eb
+#import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 
 from envs import env_data
 from envs import env_data2d
@@ -14,7 +15,7 @@ from envs.env_random import EnvRandom
 
 
 
-default_args_global = {'n_train':      10000, 
+default_args_global = {'n_train':      10000,
                        'n_test':       2000,
                        'seed':         0,
                        'output_dim':  range(1,6),
@@ -41,17 +42,18 @@ default_args_high = {#'pca':         .99,
                      #'repetitions': 5,
                      }
 
-algorithm_measures = {eb.Algorithms.None:   None,
-                      eb.Algorithms.Random: eb.Measures.delta,
-                      eb.Algorithms.SFA:    eb.Measures.delta,
-                      eb.Algorithms.SFFA:   eb.Measures.delta,
-                      eb.Algorithms.ForeCA: eb.Measures.omega,
-                      eb.Algorithms.PFA:    eb.Measures.pfa,
-                      eb.Algorithms.GPFA2:  eb.Measures.gpfa,
+algorithm_measures = {eb.Algorithms.None:     None,
+                      eb.Algorithms.Random:   eb.Measures.delta,
+                      eb.Algorithms.SFA:      eb.Measures.delta,
+                      eb.Algorithms.SFFA:     eb.Measures.delta,
+                      eb.Algorithms.ForeCA:   eb.Measures.omega,
+                      eb.Algorithms.PFA:      eb.Measures.pfa,
+                      eb.Algorithms.GPFA2:    eb.Measures.gpfa,
                       #
-                      eb.Algorithms.HiSFA:  eb.Measures.delta,
-                      eb.Algorithms.HiPFA:  eb.Measures.pfa,
-                      eb.Algorithms.HiGPFA: eb.Measures.gpfa,
+                      eb.Algorithms.HiRandom: eb.Measures.delta,
+                      eb.Algorithms.HiSFA:    eb.Measures.delta,
+                      eb.Algorithms.HiPFA:    eb.Measures.pfa,
+                      eb.Algorithms.HiGPFA:   eb.Measures.gpfa,
                       }
 
 algorithm_args = {eb.Algorithms.None:   {},

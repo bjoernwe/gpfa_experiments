@@ -3,7 +3,7 @@ import numpy as np
 
 import explot as ep
 
-import experiments_proxy.experiment_base as eb
+import experiment_base as eb
 
 from envs import env_data
 from envs import env_data2d
@@ -31,22 +31,25 @@ default_args_low  = {#'pca':         1.,
                      #'output_dim_max': 5,
                      }
 
-algorithm_measures = {eb.Algorithms.HiSFA:  eb.Measures.delta,
-                      eb.Algorithms.HiSFFA: eb.Measures.delta,
-                      eb.Algorithms.HiPFA:  eb.Measures.pfa,
-                      eb.Algorithms.HiGPFA: eb.Measures.gpfa,
+algorithm_measures = {eb.Algorithms.HiRandom: eb.Measures.delta,
+                      eb.Algorithms.HiSFA:    eb.Measures.delta,
+                      eb.Algorithms.HiSFFA:   eb.Measures.delta,
+                      eb.Algorithms.HiPFA:    eb.Measures.pfa,
+                      eb.Algorithms.HiGPFA:   eb.Measures.gpfa,
                       }
 
-algorithm_args = {eb.Algorithms.HiSFA:  {},
-                  eb.Algorithms.HiSFFA: {},
-                  eb.Algorithms.HiPFA:  {},
-                  eb.Algorithms.HiGPFA: {'iterations': 30,
-                                         'k_eval': 10}
+algorithm_args = {eb.Algorithms.HiRandom: {},
+                  eb.Algorithms.HiSFA:    {},
+                  eb.Algorithms.HiSFFA:   {},
+                  eb.Algorithms.HiPFA:    {},
+                  eb.Algorithms.HiGPFA:   {'iterations': 30,
+                                           'k_eval': 10}
                   }
 
 dataset_args_hi = [{'env': EnvData2D, 'dataset': env_data2d.Datasets.SpaceInvaders, 'scaling': (50,50), 'window': ((0,14),( 52, 66)), 'pca': 1., 'whitening': False},
                    {'env': EnvData2D, 'dataset': env_data2d.Datasets.Mario,         'scaling': (50,50), 'window': ((0,20),(120,140)), 'pca': 1., 'whitening': False},
                    {'env': EnvData2D, 'dataset': env_data2d.Datasets.Traffic,       'scaling': (50,50), 'window': ((0,30),( 90,120)), 'pca': 1., 'whitening': False},
+                   {'env': EnvRandom, 'dataset': None, 'ndim': 2500, 'pca': 1},
                    ]
 
 # extracting 10 dimensions when dim >= 20, extracting 5 otherwise

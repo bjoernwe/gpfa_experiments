@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-import experiments_proxy.experiment_base as eb
+import experiments_proxy.experiment_base_proxy as eb
 import parameters
 
 

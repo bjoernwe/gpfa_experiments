@@ -7,7 +7,7 @@ from enum import Enum
 
 import foreca.foreca_node as foreca_node
 import gpfa_node
-import sfa_node
+#import sfa_node
 from utils import echo, f_identity, f_exp08, principal_angles
 
 #sys.path.append('/home/weghebvc/workspace/git/explot/src/')
@@ -22,7 +22,7 @@ from envs import env_data
 from envs import env_data2d
 from envs.env_data import EnvData
 from envs.env_data2d import EnvData2D
-from envs.env_predictable_noise import EnvPredictableNoise
+#from envs.env_predictable_noise import EnvPredictableNoise
 from envs.env_random import EnvRandom
 
 sys.path.append('/home/weghebvc/workspace/git/GNUPFA')
@@ -244,7 +244,7 @@ def train_pfa(data_train, p, K, output_dim):
 def train_gpfa(data_train, k, iterations, variance_graph, neighborhood_graph=False, 
                weighted_edges=True, causal_features=True, generalized_eigen_problem=True,
                p=1, output_dim=1):
-    model = gpfa.gPFA(k=k, 
+    model = gpfa_node.gPFA(k=k,
                       p=p,
                       output_dim=output_dim, 
                       iterations=iterations, 

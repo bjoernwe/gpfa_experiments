@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import mkl
 import numpy as np
 
-import experiments_proxy.experiment_base as eb
+#import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters_hi
 
 
@@ -20,8 +21,13 @@ def main():
             eb.Algorithms.HiGPFA
             ]
 
+    results_angle_random = {}
+    for min_principal_angle in [False, True]:
+        results_angle_random[min_principal_angle] = parameters_hi.get_results(eb.Algorithms.HiRandom, overide_args={
+            'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle,
+            'use_test_set': False, 'angle_to_hisfa': True})
+
     results_angle = {}
-    
     for alg in algs:
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
@@ -39,12 +45,19 @@ def main():
             dataset = dataset_args['dataset']
             if not dataset in results_angle[alg][False]:
                 continue
-            
+
+            # angles
+            plt.subplot(1, 3, idx + 1)
+            # plt.subplot2grid(shape=(n_algs,4), loc=(a,3))
+
             for min_principal_angle in [False, True]:
 
-                # angles
-                plt.subplot(1, 3, idx+1)
-                #plt.subplot2grid(shape=(n_algs,4), loc=(a,3))
+                values_random = results_angle_random[min_principal_angle][dataset].values
+                d, _ = values_random.shape
+                plt.errorbar(x=range(1,d+1), y=np.mean(values_random, axis=1), yerr=np.std(values_random, axis=1), color='silver', ls='--', dashes=(5,2))
+
+            for min_principal_angle in [False, True]:
+
                 values = results_angle[alg][min_principal_angle][dataset].values
                 print values.shape
                 d, _ = values.shape

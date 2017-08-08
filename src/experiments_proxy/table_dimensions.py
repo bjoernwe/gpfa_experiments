@@ -4,7 +4,7 @@ import numpy as np
 
 import envs.env_random
 
-import experiments_proxy.experiment_base as eb
+import experiments_proxy.experiment_base_proxy as eb
 import parameters
 
 
