@@ -6,8 +6,8 @@ import sys
 from enum import Enum
 
 import foreca.foreca_node as foreca_node
-import gpfa
-import sffa
+import gpfa_node
+import sfa_node
 from utils import echo, f_identity, f_exp08, principal_angles
 
 #sys.path.append('/home/weghebvc/workspace/git/explot/src/')
@@ -22,7 +22,7 @@ from envs import env_data
 from envs import env_data2d
 from envs.env_data import EnvData
 from envs.env_data2d import EnvData2D
-from envs.env_kai import EnvKai
+from envs.env_predictable_noise import EnvPredictableNoise
 from envs.env_random import EnvRandom
 
 sys.path.append('/home/weghebvc/workspace/git/GNUPFA')

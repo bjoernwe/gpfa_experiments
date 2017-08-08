@@ -23,7 +23,7 @@ default_args_global = {'n_train':      10000,
                        'limit_data':   100000,
                        'use_test_set': True}
 
-default_args_explot = {'repetitions':  50,
+default_args_explot = {#'repetitions':  50,
                        'cachedir':     '/scratch/weghebvc',
                        'manage_seed':  'repetition_index',
                        'verbose':      True,
@@ -63,16 +63,16 @@ algorithm_args = {eb.Algorithms.None:   {},
                                          'output_dim_max': 5,
                                          'repetitions':    10,
                                          },
-                  eb.Algorithms.PFA:    {},
+                  eb.Algorithms.PFA:    {'repetitions':  50,},
                   eb.Algorithms.GPFA2:  {'iterations':   30,
                                          'k_eval':       10,
                                          'repetitions':  10,
                                          },
-                  eb.Algorithms.HiSFA:  {'output_dim':     5,
-                                         'output_dim_max': 5,},
-                  eb.Algorithms.HiPFA:  {'output_dim':   5,},
-                  eb.Algorithms.HiGPFA: {'output_dim':   5,
-                                         'iterations':   30}
+                  #eb.Algorithms.HiSFA:  {'output_dim':     5,
+                  #                       'output_dim_max': 5,},
+                  #eb.Algorithms.HiPFA:  {'output_dim':   5,},
+                  #eb.Algorithms.HiGPFA: {'output_dim':   5,
+                  #                       'iterations':   30}
                   }
 
 dataset_args = [{'env': EnvData, 'dataset': env_data.Datasets.STFT1, 'pca': .99},

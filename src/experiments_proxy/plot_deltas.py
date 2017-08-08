@@ -1,6 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
-import mkl
+#import mkl
 import numpy as np
 
 import experiments_proxy.experiment_base as eb
@@ -10,7 +10,7 @@ import parameters
 
 def main():
 
-    mkl.set_num_threads(1)
+    #mkl.set_num_threads(1)
 
     plot_alg_names = {eb.Algorithms.None:   'input data',
                       eb.Algorithms.Random: 'Random',
@@ -27,7 +27,7 @@ def main():
 
     results = {}
     #for alg in algs:
-    results = parameters.get_signals(eb.Algorithms.SFA, overide_args={'use_test_set': False}, repetition_index=0)
+    results = parameters.get_signals(eb.Algorithms.SFA, overide_args={'use_test_set': False})
         
     figsize = (20,11)
     plt.figure(figsize=figsize)
