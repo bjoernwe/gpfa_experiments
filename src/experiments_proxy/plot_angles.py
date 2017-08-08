@@ -20,20 +20,25 @@ def main():
                       }
 
     algs = [#eb.Algorithms.Random,
-            #eb.Algorithms.ForeCA,
+            eb.Algorithms.ForeCA,
             #eb.Algorithms.SFA,
             #eb.Algorithms.SFFA,
             eb.Algorithms.PFA,
             eb.Algorithms.GPFA2
             ]
 
+    results_random = {}
+    for min_principal_angle in [False, True]:
+        results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random, overide_args={'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle, 'use_test_set': False})
+
     results_angle = {}
-    
     for alg in algs:
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
-            results_angle[alg][min_principal_angle] = parameters.get_results(alg, overide_args={'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle, 'use_test_set': False})
-        
+            results_angle[alg][min_principal_angle] = parameters.get_results(alg, overide_args={
+                'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle,
+                'use_test_set': False})
+
     for _, alg in enumerate(algs):
         
         figsize = (10,4.5) if alg is eb.Algorithms.ForeCA else (10,6)
@@ -47,16 +52,25 @@ def main():
             dataset = dataset_args['dataset']
             if not dataset in results_angle[alg][False]:
                 continue
-            
+
+            # subplots
+            n_rows = 3 if alg is eb.Algorithms.ForeCA else 4
+            plt.subplot(n_rows, 4, idx + 1)
+            # plt.subplot2grid(shape=(n_algs,4), loc=(a,3))
+
+            for min_principal_angle in [False, True]:
+
+                # random
+                values_random = results_random[min_principal_angle][dataset].values
+                d, _ = values_random.shape
+                plt.errorbar(x=range(1,d+1), y=np.mean(values_random, axis=1), yerr=np.std(values_random, axis=1), color='silver', ls='--', dashes=(5,2))
+
             for min_principal_angle in [False, True]:
 
                 # angles
-                n_rows = 3 if alg is eb.Algorithms.ForeCA else 4
-                plt.subplot(n_rows, 4, idx+1)
-                #plt.subplot2grid(shape=(n_algs,4), loc=(a,3))
                 values = results_angle[alg][min_principal_angle][dataset].values
                 d, _ = values.shape
-                plt.errorbar(x=range(1,d+1), y=np.mean(values, axis=1), yerr=np.std(values, axis=1))
+                plt.errorbar(x=range(1,d+1), y=np.mean(values, axis=1), yerr=np.std(values, axis=1), color='green' if min_principal_angle else 'blue')
                 xlim_max = 5.5 #if alg is eb.Algorithms.ForeCA else 10.5 
                 plt.xlim(.5, xlim_max)
                 plt.ylim(-.2, np.pi/2+.2)
