@@ -8,11 +8,11 @@ The functions in this file mainly have two purposes:
 import joblib
 import mdp
 import numpy as np
-import sys
+#import sys
 
 from enum import Enum
 
-sys.path.append('/home/weghebvc/PycharmProjects/gpfa/src/')
+#sys.path.append('/home/weghebvc/PycharmProjects/gpfa/src/')
 import foreca.foreca_node as foreca_node
 import random_node
 import gpfa_node
@@ -22,11 +22,11 @@ from utils import echo, f_identity, f_exp08, principal_angles
 #sys.path.append('/home/weghebvc/workspace/git/explot/src/')
 #import explot as ep
 
-sys.path.append('/home/weghebvc/PycharmProjects/pfa/src/')
+#sys.path.append('/home/weghebvc/PycharmProjects/pfa/src/')
 import PFANodeMDP
 import PFACoreUtil
 
-sys.path.append('/home/weghebvc/PycharmProjects/environments/src/')
+#sys.path.append('/home/weghebvc/PycharmProjects/environments/src/')
 #from envs.environment import Noise
 from envs import env_data
 from envs import env_data2d
@@ -68,9 +68,9 @@ def prediction_error(measure, env, dataset, algorithm, output_dim, n_train, n_te
     :param kwargs:
     :return:
     """
-    # rev: 11
+    # rev: 12
     assert kwargs.get('repetition_index', None) is None
-    projected_data, model, [data_train, data_test] = calc_projected_data(env=env,
+    projected_data, model, [data_train, data_test], _ = calc_projected_data(env=env,
                                                                          dataset=dataset,
                                                                          algorithm=algorithm,
                                                                          output_dim=output_dim,
@@ -114,14 +114,14 @@ def calc_projected_data(env, dataset, algorithm, output_dim, n_train, n_test,  #
     :param kwargs:
     :return:
     """
-    [data_train, data_test] = generate_training_data(env=env,
-                                                     dataset=dataset,
-                                                     n_train=n_train,
-                                                     n_test=n_test,
-                                                     noisy_dims=noisy_dims,
-                                                     # repetition_index=repetition_index,
-                                                     seed=seed,
-                                                     **kwargs)
+    [data_train, data_test], env_node = generate_training_data(env=env,
+                                                               dataset=dataset,
+                                                               n_train=n_train,
+                                                               n_test=n_test,
+                                                               noisy_dims=noisy_dims,
+                                                               # repetition_index=repetition_index,
+                                                               seed=seed,
+                                                               **kwargs)
     print '%s: %d dimensions\n' % (dataset, data_train.shape[1])
 
     model = train_model(algorithm=algorithm,
@@ -148,7 +148,7 @@ def calc_projected_data(env, dataset, algorithm, output_dim, n_train, n_test,  #
             # algorithm == Algorithms.SFFA or \
             projected_data = projected_data[:, :output_dim]
 
-    return projected_data, model, [data_train, data_test]
+    return projected_data, model, [data_train, data_test], env_node
 
 
 @echo
@@ -230,7 +230,7 @@ def generate_training_data(env, dataset, n_train, n_test, seed, **kwargs):
                                                                                additive_noise=kwargs.get('additive_noise', 0), 
                                                                                whitening=kwargs.get('whitening', True))
     print data_train.shape, data_test.shape
-    return [data_train, data_test]
+    return [data_train, data_test], env_node
 
 
 @echo
@@ -269,7 +269,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
                     k=kwargs['k'], 
                     p=kwargs.get('p', 1),
                     iterations=kwargs['iterations'], 
-                    variance_graph=True,
+                    star_graph=False,
                     neighborhood_graph=kwargs.get('neighborhood_graph', False), 
                     weighted_edges=kwargs.get('weighted_edges', True),
                     causal_features=kwargs.get('causal_features', True),
@@ -280,14 +280,14 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
                     k=kwargs['k'], 
                     p=kwargs.get('p', 1),
                     iterations=kwargs['iterations'], 
-                    variance_graph=False,
+                    star_graph=True,
                     neighborhood_graph=kwargs.get('neighborhood_graph', False), 
                     weighted_edges=kwargs.get('weighted_edges', True),
                     causal_features=kwargs.get('causal_features', True),
                     generalized_eigen_problem=kwargs.get('generalized_eigen_problem', True),
                     output_dim=output_dim)
     elif algorithm == Algorithms.HiRandom:
-        return train_hi_sfa(data_train=data_train,
+        return train_hi_random(data_train=data_train,
                             image_shape=(50, 50),
                             output_dim=output_dim,
                             expansion=2,
@@ -370,7 +370,7 @@ def train_sffa(data_train, output_dim):
  
 @mem.cache
 def train_foreca(data_train, output_dim):
-    model = foreca_node.ForeCA(output_dim=output_dim)
+    model = foreca_node.ForeCA(output_dim=output_dim, whitening=False)
     model.train(data_train)
     return model
 
@@ -384,19 +384,19 @@ def train_pfa(data_train, p, K, output_dim):
 
  
 @mem.cache
-def train_gpfa(data_train, k, iterations, variance_graph, neighborhood_graph=False, 
+def train_gpfa(data_train, k, iterations, star_graph, neighborhood_graph=False,
                weighted_edges=True, causal_features=True, generalized_eigen_problem=True,
                p=1, output_dim=1):
-    model = gpfa_node.gPFA(k=k,
+    model = gpfa_node.GPFA(k=k,
                       p=p,
                       output_dim=output_dim, 
                       iterations=iterations, 
-                      variance_graph=variance_graph,
+                      star_graph=star_graph,
                       neighborhood_graph=neighborhood_graph,
                       weighted_edges=weighted_edges,
                       causal_features=causal_features,
                       generalized_eigen_problem=generalized_eigen_problem)
-    model.train(data_train)
+    model.train(data_train, is_whitened=True)
     return model
 
 
@@ -463,7 +463,7 @@ def train_hi_gpfa(data_train, p, k, iterations, image_shape, output_dim, expansi
     flow = build_hierarchy_flow(image_x=image_shape[1], 
                                 image_y=image_shape[0], 
                                 output_dim=output_dim, 
-                                node_class=gpfa.gPFA, 
+                                node_class=gpfa_node.GPFA,
                                 node_output_dim=node_output_dim,
                                 expansion=expansion,
                                 channels_xy_1=channels_xy_1,
@@ -473,7 +473,7 @@ def train_hi_gpfa(data_train, p, k, iterations, image_shape, output_dim, expansi
                                 node_kwargs={'k': k,
                                              'p': p,
                                              'iterations': iterations, 
-                                             'variance_graph': False,
+                                             'star_graph': True,
                                              'neighborhood_graph': False,
                                              'weighted_edges': True,
                                              'causal_features': True,
@@ -489,7 +489,7 @@ def train_hi_random(data_train, image_shape, output_dim, expansion, channels_xy_
     flow = build_hierarchy_flow(image_x=image_shape[1],
                                 image_y=image_shape[0],
                                 output_dim=output_dim,
-                                node_class=gpfa.RandomProjection,
+                                node_class=random_node.RandomProjection,
                                 node_output_dim=node_output_dim,
                                 expansion=expansion,
                                 channels_xy_1=channels_xy_1,
@@ -570,52 +570,52 @@ def build_hierarchy_flow(image_x, image_y, output_dim, node_class, node_output_d
 
 
 
-@echo
-def calc_projected_data(env, dataset, algorithm, output_dim, n_train, n_test, #repetition_index,
-                        seed, noisy_dims=0, use_test_set=True, **kwargs):
-
-    [data_train, data_test] = generate_training_data(env=env,
-                                                     dataset=dataset,
-                                                     n_train=n_train,
-                                                     n_test=n_test,
-                                                     noisy_dims=noisy_dims,
-                                                     #repetition_index=repetition_index,
-                                                     seed=seed,
-                                                     **kwargs)
-    print '%s: %d dimensions\n' % (dataset, data_train.shape[1])
-
-    model = train_model(algorithm=algorithm,
-                        data_train=data_train,
-                        output_dim=output_dim,
-                        seed=seed,
-                        #repetition_index=repetition_index,
-                        **kwargs)
-
-    if model is None:
-        if use_test_set:
-            projected_data = np.array(data_test, copy=True)
-        else:
-            projected_data = np.array(data_train, copy=True)
-    else:
-        if use_test_set:
-            projected_data = model.execute(data_test)
-        else:
-            projected_data = model.execute(data_train)
-        # reduce dim because ForeCA calculated output_dim_max dimensions
-        if  algorithm == Algorithms.ForeCA:# or \
-            #algorithm == Algorithms.HiSFA:
-            #algorithm == Algorithms.SFA or \
-            #algorithm == Algorithms.SFFA or \
-            projected_data = projected_data[:,:output_dim]
-
-    return projected_data, model, [data_train, data_test]
+# @echo
+# def calc_projected_data(env, dataset, algorithm, output_dim, n_train, n_test, #repetition_index,
+#                         seed, noisy_dims=0, use_test_set=True, **kwargs):
+#
+#     [data_train, data_test], [pca1, pca2] = generate_training_data(env=env,
+#                                                      dataset=dataset,
+#                                                      n_train=n_train,
+#                                                      n_test=n_test,
+#                                                      noisy_dims=noisy_dims,
+#                                                      #repetition_index=repetition_index,
+#                                                      seed=seed,
+#                                                      **kwargs)
+#     print '%s: %d dimensions\n' % (dataset, data_train.shape[1])
+#
+#     model = train_model(algorithm=algorithm,
+#                         data_train=data_train,
+#                         output_dim=output_dim,
+#                         seed=seed,
+#                         #repetition_index=repetition_index,
+#                         **kwargs)
+#
+#     if model is None:
+#         if use_test_set:
+#             projected_data = np.array(data_test, copy=True)
+#         else:
+#             projected_data = np.array(data_train, copy=True)
+#     else:
+#         if use_test_set:
+#             projected_data = model.execute(data_test)
+#         else:
+#             projected_data = model.execute(data_train)
+#         # reduce dim because ForeCA calculated output_dim_max dimensions
+#         if  algorithm == Algorithms.ForeCA:# or \
+#             #algorithm == Algorithms.HiSFA:
+#             #algorithm == Algorithms.SFA or \
+#             #algorithm == Algorithms.SFFA or \
+#             projected_data = projected_data[:,:output_dim]
+#
+#     return projected_data, model, [data_train, data_test]
 
 
 
 def dimensions_of_data(measure, dataset, algorithm, output_dim, n_train, n_test,
                        use_test_set, repetition_index, seed=None, **kwargs):
     
-    _, _, data_chunks = calc_projected_data(dataset=dataset, 
+    _, _, data_chunks, _ = calc_projected_data(dataset=dataset,
                                             algorithm=algorithm, 
                                             output_dim=output_dim, 
                                             n_train=n_train,
@@ -628,77 +628,77 @@ def dimensions_of_data(measure, dataset, algorithm, output_dim, n_train, n_test,
 
 
 
-@echo
-def prediction_error(measure, env, dataset, algorithm, output_dim, n_train, n_test,
-                     use_test_set, seed, **kwargs):
-    # rev: 11
-    projected_data, model, [data_train, data_test] = calc_projected_data(env=env,
-                                                                         dataset=dataset,
-                                                                         algorithm=algorithm,
-                                                                         output_dim=output_dim,
-                                                                         n_train=n_train,
-                                                                         n_test=n_test,
-                                                                         use_test_set=use_test_set,
-                                                                         #repetition_index=repetition_index,
-                                                                         seed=seed, **kwargs)
+# @echo
+# def prediction_error(measure, env, dataset, algorithm, output_dim, n_train, n_test,
+#                      use_test_set, seed, **kwargs):
+#     # rev: 11
+#     projected_data, model, [data_train, data_test], _ = calc_projected_data(env=env,
+#                                                                          dataset=dataset,
+#                                                                          algorithm=algorithm,
+#                                                                          output_dim=output_dim,
+#                                                                          n_train=n_train,
+#                                                                          n_test=n_test,
+#                                                                          use_test_set=use_test_set,
+#                                                                          #repetition_index=repetition_index,
+#                                                                          seed=seed, **kwargs)
+#
+#     kwargs.update({'env': env,
+#                    'dataset': dataset,
+#                    'algorithm': algorithm,
+#                    'output_dim': output_dim,
+#                    'n_train': n_train,
+#                    'n_test': n_test,
+#                    'use_test_set': use_test_set,
+#                    #'repetition_index': repetition_index,
+#                    'seed': seed})
+#     error = prediction_error_on_data(data=projected_data, measure=measure, model=model,
+#                                      data_chunks=[data_train, data_test], **kwargs)
+#     assert np.isfinite(error)
+#     return error
 
-    kwargs.update({'env': env,
-                   'dataset': dataset,
-                   'algorithm': algorithm,
-                   'output_dim': output_dim,
-                   'n_train': n_train,
-                   'n_test': n_test,
-                   'use_test_set': use_test_set,
-                   #'repetition_index': repetition_index,
-                   'seed': seed})
-    error = prediction_error_on_data(data=projected_data, measure=measure, model=model,
-                                     data_chunks=[data_train, data_test], **kwargs)
-    assert np.isfinite(error)
-    return error
 
-
-@echo
-def prediction_error_on_data(data, measure, model=None, data_chunks=None, **kwargs):
-
-    if data.ndim == 1:
-        n = data.shape[0]
-        data = np.array(data, ndmin=2).T
-        assert data.shape == (n,1)
-
-    if measure == Measures.delta:
-        return calc_delta(data=data, ndim=False)
-    elif measure == Measures.delta_ndim:
-        return calc_delta(data=data, ndim=True)
-    elif measure == Measures.omega:
-        return calc_omega(data=data, omega_dim=kwargs['output_dim']-1)
-    elif measure == Measures.omega_ndim:
-        return calc_omega_ndim(data=data)
-    elif measure == Measures.pfa:
-        return calc_autoregressive_error(data=data, model=model, p=kwargs['p'], data_train=data_chunks[0])
-#     elif measure == Measures.pfa_ndim:
-#         return calc_autoregressive_error_ndim(data=data,
-#                                          p=kwargs['p'],
-#                                          K=kwargs['K'],
-#                                          model=model,
-#                                          data_chunks=data_chunks)
-    elif measure == Measures.gpfa:
-        return calc_predictability_trace_of_avg_cov(x=data,
-                                                    k=kwargs.get('k_eval', kwargs['k']),
-                                                    p=kwargs['p'],
-                                                    ndim=False)
-    elif measure == Measures.gpfa_ndim:
-        return calc_predictability_trace_of_avg_cov(x=data,
-                                                    k=kwargs.get('k_eval', kwargs['k']),
-                                                    p=kwargs['p'],
-                                                    ndim=True)
-    elif measure == Measures.ndims:
-        return data_chunks[0].shape[1]
-    elif measure == Measures.angle_to_sfa_signals:
-        return calc_angle_to_sfa_signals(data, **kwargs)
-    elif measure == Measures.angle_to_p1:
-        return calc_angle_to_p1(data, **kwargs)
-    else:
-        assert False
+# @echo
+# def prediction_error_on_data(data, measure, model=None, data_chunks=None, **kwargs):
+#
+#     if data.ndim == 1:
+#         n = data.shape[0]
+#         data = np.array(data, ndmin=2).T
+#         assert data.shape == (n,1)
+#
+#     if measure == Measures.delta:
+#         return calc_delta(data=data, ndim=False)
+#     elif measure == Measures.delta_ndim:
+#         return calc_delta(data=data, ndim=True)
+#     elif measure == Measures.omega:
+#         return calc_omega(data=data, omega_dim=kwargs['output_dim']-1)
+#     elif measure == Measures.omega_ndim:
+#         return calc_omega_ndim(data=data)
+#     elif measure == Measures.pfa:
+#         return calc_autoregressive_error(data=data, model=model, p=kwargs['p'], data_train=data_chunks[0])
+# #     elif measure == Measures.pfa_ndim:
+# #         return calc_autoregressive_error_ndim(data=data,
+# #                                          p=kwargs['p'],
+# #                                          K=kwargs['K'],
+# #                                          model=model,
+# #                                          data_chunks=data_chunks)
+#     elif measure == Measures.gpfa:
+#         return calc_predictability_trace_of_avg_cov(x=data,
+#                                                     k=kwargs.get('k_eval', kwargs['k']),
+#                                                     p=kwargs['p'],
+#                                                     ndim=False)
+#     elif measure == Measures.gpfa_ndim:
+#         return calc_predictability_trace_of_avg_cov(x=data,
+#                                                     k=kwargs.get('k_eval', kwargs['k']),
+#                                                     p=kwargs['p'],
+#                                                     ndim=True)
+#     elif measure == Measures.ndims:
+#         return data_chunks[0].shape[1]
+#     elif measure == Measures.angle_to_sfa_signals:
+#         return calc_angle_to_sfa_signals(data, **kwargs)
+#     elif measure == Measures.angle_to_p1:
+#         return calc_angle_to_p1(data, **kwargs)
+#     else:
+#         assert False
 
 
 
@@ -745,7 +745,7 @@ def calc_omega_ndim(data):
 @mem.cache
 def calc_angle_to_sfa_signals(data, **kwargs):
     kwargs['algorithm'] = Algorithms.HiSFA if kwargs.get('angle_to_hisfa', False) else Algorithms.SFA
-    signals_sfa, _, _ = calc_projected_data(**kwargs)
+    signals_sfa, _, _, _ = calc_projected_data(**kwargs)
     return principal_angles(signals_sfa, data)[0 if kwargs.get('min_principal_angle') else -1]  
 
 
@@ -753,8 +753,61 @@ def calc_angle_to_sfa_signals(data, **kwargs):
 #@mem.cache
 def calc_angle_to_p1(data, **kwargs):
     kwargs['p'] = 1
-    signals, _, _ = calc_projected_data(**kwargs)
+    signals, _, _, _ = calc_projected_data(**kwargs)
     return principal_angles(signals, data)[kwargs['principal_angle_idx']]  
+
+
+
+def get_dataset_name(env, ds, latex=False):
+
+    result = 'FOO'
+
+    if env is EnvData:
+        if ds is env_data.Datasets.STFT1:
+            result = 'AUD_STFT1'
+        elif ds is env_data.Datasets.STFT2:
+            result = 'AUD_STFT2'
+        elif ds is env_data.Datasets.STFT3:
+            result = 'AUD_STFT3'
+        elif ds is env_data.Datasets.EEG:
+            result = 'PHY_EEG_GAL'
+        elif ds is env_data.Datasets.EEG2:
+            result = 'PHY_EEG_BCI'
+        elif ds is env_data.Datasets.PHYSIO_EHG:
+            result = 'PHY_EHG'
+        elif ds is env_data.Datasets.EIGHT_EMOTION:
+            result = 'PHY_EIGHT_EMOTION'
+        elif ds is env_data.Datasets.PHYSIO_MGH:
+            result = 'PHY_MGH_MF'
+        elif ds is env_data.Datasets.PHYSIO_MMG:
+            result = 'PHY_MMG'
+        elif ds is env_data.Datasets.PHYSIO_UCD:
+            result = 'PHY_UCDDB'
+        elif ds is env_data.Datasets.HAPT:
+            result = 'MISC_SBHAR'
+        elif ds is env_data.Datasets.FIN_EQU_FUNDS:
+            result = 'MISC_EQUITY_FUNDS'
+        else:
+            assert False
+    elif env is EnvData2D:
+        if ds is env_data2d.Datasets.Mario:
+            result = 'VIS_SUPER_MARIO'
+        elif ds is env_data2d.Datasets.SpaceInvaders:
+            result = 'VIS_SPACE_INVADERS'
+        elif ds is env_data2d.Datasets.Traffic:
+            result = 'VIS_URBAN1'
+        else:
+            assert False
+    elif env is EnvRandom:
+        result = 'MISC_NOISE'
+    else:
+        assert False
+
+    if latex:
+        result = result.replace('_', '\_')
+
+    return result
+
 
 
 if __name__ == '__main__':

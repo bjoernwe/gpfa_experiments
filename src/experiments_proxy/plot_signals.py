@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters
-
 
 
 def main():
@@ -15,14 +14,14 @@ def main():
             eb.Algorithms.PFA,
             eb.Algorithms.GPFA2
             ]
-    repetition_index = 0
 
     results_test  = {}
     results_train = {}
     
     for alg in algs:
-        results_test[alg]  = parameters.get_signals(alg, overide_args={}, repetition_index=repetition_index)
-        results_train[alg] = parameters.get_signals(alg, overide_args={'use_test_set': False}, repetition_index=repetition_index)
+        r = parameters.algorithm_args[alg].get('repetitions', 50)
+        results_test[alg]  = parameters.get_signals(alg, overide_args={'seed': range(r), 'output_dim': 5})
+        results_train[alg] = parameters.get_signals(alg, overide_args={'seed': range(r), 'output_dim': 5, 'use_test_set': False})
         
     alphas = np.linspace(0, 1, 6)[::-1]
 

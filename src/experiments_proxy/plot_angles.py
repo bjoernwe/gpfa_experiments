@@ -64,14 +64,14 @@ def main():
                 # random
                 values_random = results_random[min_principal_angle][dataset].values
                 d, _ = values_random.shape
-                plt.errorbar(x=range(1,d+1), y=np.mean(values_random, axis=1), yerr=np.std(values_random, axis=1), color='silver', ls='--', dashes=(5,2))
+                plt.errorbar(x=range(1,d+1), y=np.mean(values_random, axis=1), yerr=np.std(values_random, axis=1), color='silver', ls='--', dashes=(5,2), zorder=0)
 
             for min_principal_angle in [False, True]:
 
                 # angles
                 values = results_angle[alg][min_principal_angle][dataset].values
                 d, _ = values.shape
-                plt.errorbar(x=range(1,d+1), y=np.mean(values, axis=1), yerr=np.std(values, axis=1), color='green' if min_principal_angle else 'blue')
+                plt.errorbar(x=range(1,d+1), y=np.mean(values, axis=1), yerr=np.std(values, axis=1), color='green' if min_principal_angle else 'blue', zorder=10)
                 xlim_max = 5.5 #if alg is eb.Algorithms.ForeCA else 10.5 
                 plt.xlim(.5, xlim_max)
                 plt.ylim(-.2, np.pi/2+.2)

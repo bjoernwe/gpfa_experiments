@@ -1,7 +1,7 @@
 import joblib
 import mdp
 import numpy as np
-import sys
+#import sys
 
 from enum import Enum
 
@@ -13,10 +13,11 @@ from utils import echo, f_identity, f_exp08, principal_angles
 #sys.path.append('/home/weghebvc/workspace/git/explot/src/')
 #import explot as ep
 
-sys.path.append('/home/weghebvc/workspace/git/GNUPFA/src/')
+#sys.path.append('/home/weghebvc/workspace/git/GNUPFA/src/')
 import PFANodeMDP
+import PFACoreUtil
 
-sys.path.append('/home/weghebvc/workspace/git/environments_new/src/')
+#sys.path.append('/home/weghebvc/workspace/git/environments_new/src/')
 #from envs.environment import Noise
 from envs import env_data
 from envs import env_data2d
@@ -25,8 +26,6 @@ from envs.env_data2d import EnvData2D
 #from envs.env_predictable_noise import EnvPredictableNoise
 from envs.env_random import EnvRandom
 
-sys.path.append('/home/weghebvc/workspace/git/GNUPFA')
-import PFACoreUtil
 
 
 
@@ -225,7 +224,7 @@ def train_sffa(data_train, output_dim):
  
 @mem.cache
 def train_foreca(data_train, output_dim):
-    model = foreca_node.ForeCA(output_dim=output_dim)
+    model = foreca_node.ForeCA(output_dim=output_dim, whitening=False)
     model.train(data_train)
     return model
  
@@ -244,7 +243,7 @@ def train_pfa(data_train, p, K, output_dim):
 def train_gpfa(data_train, k, iterations, variance_graph, neighborhood_graph=False, 
                weighted_edges=True, causal_features=True, generalized_eigen_problem=True,
                p=1, output_dim=1):
-    model = gpfa_node.gPFA(k=k,
+    model = gpfa_node.GPFA(k=k,
                       p=p,
                       output_dim=output_dim, 
                       iterations=iterations, 
@@ -253,7 +252,7 @@ def train_gpfa(data_train, k, iterations, variance_graph, neighborhood_graph=Fal
                       weighted_edges=weighted_edges,
                       causal_features=causal_features,
                       generalized_eigen_problem=generalized_eigen_problem)
-    model.train(data_train)
+    model.train(data_train, is_whitened=True)
     return model
 
 
@@ -474,7 +473,7 @@ def dimensions_of_data(measure, dataset, algorithm, output_dim, n_train, n_test,
 @echo
 def prediction_error(measure, env, dataset, algorithm, output_dim, n_train, n_test, 
                      use_test_set, seed, **kwargs):
-    # rev: 11
+    # rev: 12
     projected_data, model, [data_train, data_test] = calc_projected_data(env=env,
                                                                          dataset=dataset, 
                                                                          algorithm=algorithm, 

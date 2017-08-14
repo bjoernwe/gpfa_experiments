@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import mkl
 import numpy as np
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters
 import parameters_hi
 
@@ -21,8 +21,8 @@ def main():
                       eb.Algorithms.GPFA2:  'GPFA',
                       }
     
-    algs = [eb.Algorithms.None,
-            #eb.Algorithms.Random,
+    algs = [#eb.Algorithms.None,
+            eb.Algorithms.Random,
             eb.Algorithms.SFA,
             eb.Algorithms.ForeCA,
             #eb.Algorithms.SFFA,

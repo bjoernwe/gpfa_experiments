@@ -24,7 +24,7 @@ default_args_global = {'n_train':      10000,
                        'limit_data':   100000,
                        'use_test_set': True}
 
-default_args_explot = {#'repetitions':  50,
+default_args_explot = {'repetitions':  50,
                        'cachedir':     '/scratch/weghebvc',
                        'manage_seed':  'repetition_index',
                        'verbose':      True,
@@ -57,6 +57,7 @@ algorithm_measures = {eb.Algorithms.None:     None,
                       }
 
 algorithm_args = {eb.Algorithms.None:   {},
+                  eb.Algorithms.Random: {},
                   eb.Algorithms.SFA:    {},
                   eb.Algorithms.ForeCA: {'n_train':      1000, 
                                          'n_test':       200,
@@ -198,7 +199,7 @@ def get_results(alg, overide_args={}, include_random=True, plot=False):
         kwargs['algorithm'] = alg
         kwargs['measure'] = algorithm_measures[alg]
         kwargs.update(args)
-        kwargs.update(dataset_default_args.get(dataset, {}))
+        #kwargs.update(dataset_default_args.get(dataset, {}))
         kwargs.update(algorithm_parameters.get(alg, {}).get(dataset, {}))
         kwargs.update(algorithm_args.get(alg, {}))
         kwargs.update(overide_args)
@@ -211,13 +212,16 @@ def get_results(alg, overide_args={}, include_random=True, plot=False):
 
 
 
-def get_signals(alg, overide_args={}, include_random=True, stack_result=True):
+def get_signals(alg, overide_args={}, include_random=True, stack_result=True, dataset_list=None):
 
     results = {}
 
     for args in dataset_args:
         env = args['env']
         dataset = args['dataset']
+        if dataset_list is not None:
+            if dataset not in dataset_list:
+                continue
         print dataset
         if alg is eb.Algorithms.ForeCA and dataset not in datasets_for_foreca:
             continue
@@ -235,28 +239,33 @@ def get_signals(alg, overide_args={}, include_random=True, stack_result=True):
         try:
             # list of repetition indices?
             projected_data_list = []
+            data_train_list = []
+            data_test_list = []
+            model_list = []
+            env_list = []
             for i in kwargs['seed']:
                 print i, kwargs
                 kwargs_updated = dict(kwargs)
                 kwargs_updated['seed'] = i
-                projected_data, _, [_, _] = eb.calc_projected_data(**kwargs_updated)
+                projected_data, model, [data_train, data_test], env_node = eb.calc_projected_data(**kwargs_updated)
+                # lists of results
                 projected_data_list.append(projected_data)
+                data_train_list.append(data_train)
+                data_test_list.append(data_test)
+                model_list.append(model)
             if stack_result:
                 projected_data = np.stack(projected_data_list, axis=2)
             else:
                 projected_data = projected_data_list
-            data_train     = None
-            data_test      = None
-            model          = None
+            result = {'projected_data': projected_data, 'data_train': data_train_list, 'data_test': data_test_list,
+                      'model': model_list, 'env_node': env_list}
         except TypeError:
-            projected_data, model, [data_train, data_test] = eb.calc_projected_data(**kwargs)
-        result = {'projected_data': projected_data, 'data_train': data_train, 'data_test': data_test, 'model': model}
+            projected_data, model, [data_train, data_test], env_node = eb.calc_projected_data(**kwargs)
+            result = {'projected_data': projected_data, 'data_train': data_train, 'data_test': data_test, 'model': model, 'env_node': env_node}
         results[dataset] = result
                 
     return results
 
 
-
 if __name__ == '__main__':
     print get_results(eb.Algorithms.SFA)
-

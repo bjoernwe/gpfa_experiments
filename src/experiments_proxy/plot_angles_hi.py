@@ -21,11 +21,11 @@ def main():
             eb.Algorithms.HiGPFA
             ]
 
-    results_angle_random = {}
-    for min_principal_angle in [False, True]:
-        results_angle_random[min_principal_angle] = parameters_hi.get_results(eb.Algorithms.HiRandom, overide_args={
-            'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle,
-            'use_test_set': False, 'angle_to_hisfa': True})
+    #results_angle_random = {}
+    #for min_principal_angle in [False, True]:
+    #    results_angle_random[min_principal_angle] = parameters_hi.get_results(eb.Algorithms.HiRandom, overide_args={
+    #        'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle,
+    #        'use_test_set': False, 'angle_to_hisfa': True})
 
     results_angle = {}
     for alg in algs:
