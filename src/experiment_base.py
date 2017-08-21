@@ -43,9 +43,9 @@ default_cachedir = '/scratch/weghebvc'
 mem = joblib.Memory(cachedir=default_cachedir, verbose=1)
 
 
-Algorithms = Enum('Algorithms', 'None Random SFA SFFA ForeCA PFA GPFA1 GPFA2 HiRandom HiSFA HiSFFA HiPFA HiGPFA')
+Algorithms = Enum('Algorithms', 'None PCA Random SFA SFFA ForeCA PFA GPFA1 GPFA2 HiRandom HiSFA HiSFFA HiPFA HiGPFA')
 
-Measures = Enum('Measures', 'delta delta_ndim omega omega_ndim pfa gpfa gpfa_ndim ndims angle_to_sfa_signals angle_to_p1')
+Measures = Enum('Measures', 'delta delta_ndim omega omega_ndim pfa gpfa gpfa_ndim ndims angle_to_sfa_signals angle_to_p1 min_deltas')
 
 
 
@@ -114,6 +114,8 @@ def calc_projected_data(env, dataset, algorithm, output_dim, n_train, n_test,  #
     :param kwargs:
     :return:
     """
+    if algorithm == Algorithms.PCA:
+        kwargs['pca'] = output_dim
     [data_train, data_test], env_node = generate_training_data(env=env,
                                                                dataset=dataset,
                                                                n_train=n_train,
@@ -190,6 +192,9 @@ def prediction_error_on_data(data, measure, model=None, data_chunks=None, **kwar
         return calc_angle_to_sfa_signals(data, **kwargs)
     elif measure == Measures.angle_to_p1:
         return calc_angle_to_p1(data, **kwargs)
+    elif measure == Measures.min_deltas:
+        dat = data_chunks[1] if kwargs['use_test_set'] else data_chunks[0]
+        return calc_min_delta_components(dat, output_dim=kwargs['output_dim'])
     else:
         assert False
 
@@ -246,7 +251,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
     :return:
     """
     
-    if algorithm == Algorithms.None:
+    if algorithm == Algorithms.None or algorithm == Algorithms.PCA:
         return None
     elif algorithm == Algorithms.Random:
         return train_random(data_train=data_train, 
@@ -290,7 +295,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
         return train_hi_random(data_train=data_train,
                             image_shape=(50, 50),
                             output_dim=output_dim,
-                            expansion=2,
+                            expansion=kwargs.get('expansion', 2),
                             channels_xy_1=10,
                             spacing_xy_1=10,
                             channels_xy_n=2,
@@ -300,7 +305,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
         return train_hi_sfa(data_train=data_train, 
                             image_shape=(50,50), 
                             output_dim=output_dim, 
-                            expansion=2, 
+                            expansion=kwargs.get('expansion', 2),
                             channels_xy_1=10, 
                             spacing_xy_1=10, 
                             channels_xy_n=2, 
@@ -310,7 +315,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
         return train_hi_sffa(data_train=data_train, 
                              image_shape=(50,50), 
                              output_dim=output_dim, 
-                             expansion=2, 
+                             expansion=kwargs.get('expansion', 2),
                              channels_xy_1=10, 
                              spacing_xy_1=10, 
                              channels_xy_n=2, 
@@ -322,7 +327,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
                             K=kwargs['K'],
                             image_shape=(50,50), 
                             output_dim=output_dim, 
-                            expansion=2, 
+                            expansion=kwargs.get('expansion', 2),
                             channels_xy_1=10, 
                             spacing_xy_1=10, 
                             channels_xy_n=2, 
@@ -335,7 +340,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
                              iterations=kwargs['iterations'],
                              image_shape=(50,50), 
                              output_dim=output_dim, 
-                             expansion=2, 
+                             expansion=kwargs.get('expansion', 2),
                              channels_xy_1=10, 
                              spacing_xy_1=10, 
                              channels_xy_n=2, 
@@ -704,6 +709,7 @@ def dimensions_of_data(measure, dataset, algorithm, output_dim, n_train, n_test,
 
 @mem.cache
 def calc_delta(data, ndim=False):
+    assert data.ndim == 2
     sfa = mdp.nodes.SFANode()
     sfa.train(data)
     sfa.stop_training()
@@ -720,14 +726,17 @@ def calc_autoregressive_error(data, model, p, data_train):
     else:
         # for instance when evaluating SFA signals with PFA measure
         # then PFA model needs to be trained first
-        projected_data_train = model.execute(data_train)
+        if model is not None:
+            projected_data_train = model.execute(data_train)
+        else:
+            projected_data_train = data_train
         W = PFACoreUtil.calcRegressionCoeffRefImp(data=projected_data_train, p=p)
     return PFACoreUtil.empiricalRawErrorRefImp(data=data, W=W)
 
 
 @mem.cache
 def calc_predictability_trace_of_avg_cov(x, k, p, ndim):
-    return gpfa.calc_predictability_trace_of_avg_cov( x=x, k=k, p=p, ndim=ndim )
+    return gpfa_node.calc_predictability_trace_of_avg_cov( x=x, k=k, p=p, ndim=ndim )
 
 
 @mem.cache
@@ -756,6 +765,21 @@ def calc_angle_to_p1(data, **kwargs):
     signals, _, _, _ = calc_projected_data(**kwargs)
     return principal_angles(signals, data)[kwargs['principal_angle_idx']]  
 
+
+#@echo
+@mem.cache
+def calc_min_delta_components(data, output_dim):
+    assert data.ndim == 2
+    deltas = []
+    for signal in data.T:
+        assert signal.ndim == 1
+        signal = np.array(signal, ndmin=2).T
+        sfa_node = mdp.nodes.SFANode(output_dim=1)
+        sfa_node.train(signal)
+        sfa_node.stop_training()
+        deltas.append(sfa_node.d[0])
+    deltas.sort()
+    return np.sum(deltas[:output_dim])
 
 
 def get_dataset_name(env, ds, latex=False):
@@ -796,6 +820,8 @@ def get_dataset_name(env, ds, latex=False):
             result = 'VIS_SPACE_INVADERS'
         elif ds is env_data2d.Datasets.Traffic:
             result = 'VIS_URBAN1'
+        elif ds is env_data2d.Datasets.GoProBike:
+            result = 'VIS_GOPRO_BIKE'
         else:
             assert False
     elif env is EnvRandom:

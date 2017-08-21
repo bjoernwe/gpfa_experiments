@@ -25,7 +25,9 @@ default_args_global = {'n_train':      10000,
                        'seed':         0,
                        'noisy_dims':   0,
                        'limit_data':   100000,
-                       'use_test_set': True}
+                       'use_test_set': True,
+                       'expansion':    1
+                       }
 
 default_args_explot = {'repetitions':  20,
                        'cachedir':     '/scratch/weghebvc',
@@ -56,7 +58,7 @@ algorithm_args = {eb.Algorithms.HiRandom: {},
 dataset_args_hi = [{'env': EnvData2D, 'dataset': env_data2d.Datasets.SpaceInvaders, 'scaling': (50,50), 'window': ((0,14),( 52, 66)), 'pca': 1., 'whitening': False},
                    {'env': EnvData2D, 'dataset': env_data2d.Datasets.Mario,         'scaling': (50,50), 'window': ((0,20),(120,140)), 'pca': 1., 'whitening': False},
                    {'env': EnvData2D, 'dataset': env_data2d.Datasets.Traffic,       'scaling': (50,50), 'window': ((0,30),( 90,120)), 'pca': 1., 'whitening': False},
-                   {'env': EnvRandom, 'dataset': None, 'ndim': 2500, 'pca': 1},
+                   #{'env': EnvRandom, 'dataset': None, 'ndim': 2500, 'pca': 1},
                    ]
 
 # extracting 10 dimensions when dim >= 20, extracting 5 otherwise

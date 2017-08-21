@@ -1,15 +1,12 @@
-
-
 import matplotlib.pyplot as plt
 import numpy as np
 import mkl
 #import sys
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 
 import parameters
     
-
 
 def main():
     

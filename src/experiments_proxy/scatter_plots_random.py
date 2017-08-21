@@ -6,7 +6,8 @@ import mkl
 import numpy as np
 import scipy.stats
 
-import experiments_proxy.experiment_base_proxy as eb
+#import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters
 
 
@@ -24,9 +25,10 @@ def main():
                       }
     
     algs =  [eb.Algorithms.SFA,
-             eb.Algorithms.ForeCA,
+             #eb.Algorithms.ForeCA,
              eb.Algorithms.PFA,
-             eb.Algorithms.GPFA2]
+             #eb.Algorithms.GPFA2
+             ]
 
     results = {}
     results_random = {}
@@ -83,21 +85,21 @@ def main():
             errors_rnd_neg = np.sqrt(np.nanmean(values0_sfa_dummy**2, axis=-1))
     
             label = '%s' % eb.get_dataset_name(env=env, ds=dataset, latex=False) #%s<%s>' % (dataset_args['env'], dataset_args['dataset'])
-            xerr = np.vstack([errors_rnd_neg, errors_rnd_pos])
-            yerr = np.vstack([errors_neg, errors_pos])
-            plt.errorbar(mu_rnd, mu, xerr=xerr, yerr=yerr, c=color, marker=marker, markersize=9, label=label, zorder=2)
+            xerr = np.vstack([errors_neg, errors_pos])
+            yerr = np.vstack([errors_rnd_neg, errors_rnd_pos])
+            plt.errorbar(mu, mu_rnd, xerr=xerr, yerr=yerr, c=color, marker=marker, markersize=9, label=label, zorder=2)
             
         # 
         measure_label = 'prediction errors on'
         if alg is eb.Algorithms.ForeCA:
             measure_label = 'forcastability of'
-        elif alg is eb.Algorithms.Random:
+        elif alg is eb.Algorithms.Random or alg is eb.Algorithms.SFA:
             measure_label = 'delta values'
         measure_limits = [1e0, 1e2] if alg is eb.Algorithms.ForeCA else [1e-4, 1e2]
         plt.plot(measure_limits, measure_limits, '-', c='gray', zorder=3)
         plt.suptitle(plot_alg_names[alg])
         plt.xlabel('%s %s features' % (measure_label, plot_alg_names[alg]))
-        plt.ylabel('%s SFA features' % (measure_label))
+        plt.ylabel('%s random features' % (measure_label))
         plt.xscale('log')
         plt.yscale('log')
         handles, labels = plt.gca().get_legend_handles_labels()

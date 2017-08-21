@@ -9,6 +9,7 @@ import gpfa_node
 import random_node
 import PFANodeMDP
 
+from envs import env_data
 from envs import env_data2d
 
 import experiment_base as eb
@@ -32,6 +33,8 @@ def get_features_from_model(model):
             W = model.whitening.v
     elif isinstance(model, random_node.RandomProjection):
         A = model.U
+    elif model is None: # PCA
+        pass
     else:
         print type(model)
         assert False
@@ -52,9 +55,10 @@ def main():
                       }
     
     algs = [#eb.Algorithms.None,
+            eb.Algorithms.PCA,
             eb.Algorithms.Random,
             eb.Algorithms.SFA,
-            eb.Algorithms.ForeCA,
+            #eb.Algorithms.ForeCA,
             eb.Algorithms.PFA,
             eb.Algorithms.GPFA2
             ]
@@ -72,12 +76,23 @@ def main():
         stack_result = not alg is eb.Algorithms.None
         #r = 3#parameters.algorithm_args[alg].get('repetitions', repetitions)
         results_train[alg] = parameters.get_signals(alg,
-                                                    overide_args={'use_test_set': False, 'output_dim': 5, 'seed': 0}, #, 'n_train': 18000, 'n_test': 500},
+                                                    overide_args={'use_test_set': False, 'output_dim': 5, 'seed': 1},#, 'n_train': 10000, 'n_test': 100},
                                                     stack_result=stack_result,
-                                                    dataset_list=[env_data2d.Datasets.SpaceInvaders, env_data2d.Datasets.Mario, env_data2d.Datasets.Traffic])
+                                                    dataset_list=[env_data.Datasets.STFT1,
+                                                                  env_data.Datasets.STFT2,
+                                                                  env_data.Datasets.STFT3,
+                                                                  #env_data2d.Datasets.GoProBike,
+                                                                  #env_data2d.Datasets.RatLab,
+                                                                  #env_data2d.Datasets.SpaceInvaders,
+                                                                  #env_data2d.Datasets.Mario,
+                                                                  #env_data2d.Datasets.Traffic
+                                                                  ])
     #for alg in algs_hi:
     #    r = 3#parameters_hi.algorithm_args[alg].get('repetitions', repetitions_hi)
     #    results_train[alg] = parameters_hi.get_signals(alg, overide_args={'use_test_set': False, 'output_dim': 5, 'seed': range(1,r+1)})
+
+    #plt.plot(results_train[alg][env_data2d.Datasets.RatLab]['projected_data'])
+    #plt.show()
 
     for alg in algs:
 
@@ -90,7 +105,14 @@ def main():
             dataset = dataset_args['dataset']
             if not dataset in results_train[alg]:
                 continue
-            if not dataset in [env_data2d.Datasets.SpaceInvaders, env_data2d.Datasets.Mario, env_data2d.Datasets.Traffic]:
+            if not dataset in [env_data.Datasets.STFT1,
+                               env_data.Datasets.STFT2,
+                               env_data.Datasets.STFT3,
+                               env_data2d.Datasets.RatLab,
+                               env_data2d.Datasets.GoProBike,
+                               env_data2d.Datasets.SpaceInvaders,
+                               env_data2d.Datasets.Mario,
+                               env_data2d.Datasets.Traffic]:
                 continue
             id += 1
 
@@ -101,12 +123,13 @@ def main():
             pca_node = env_node.pca1
             whitening = env_node.whitening_node
             V = pca_node.v
+            W = whitening.v
             Winv = np.linalg.inv(whitening.v)
             U, W2 = get_features_from_model(model)
             assert W2 is None
 
-            dat1 = data_train.dot(Winv)
-            dat2 = dat1.dot(V.T)
+            #dat1 = data_train.dot(Winv)
+            #dat2 = dat1.dot(V.T)
             #print np.cov(dat1.T)
             #print np.cov(dat1.T).shape
             #print np.cov(dat2.T)
@@ -119,18 +142,31 @@ def main():
             #plt.figure()
             #plt.imshow(np.cov(dat2.T), cmap=plt.get_cmap('Greys'))
 
-            F = V.dot(Winv.dot(U))
-            assert F.shape == (400, 5)
+            if alg is eb.Algorithms.PCA:
+                assert U is None
+                #F = V.dot(Winv)
+                #F = V.dot(W)
+                F = V
+            else:
+                #F = V.dot(Winv.dot(U))
+                F = V.dot(W.dot(U))
+            #assert F.shape == (400, 5)
+            assert F.shape == (512, 5)
+            #F = V
+            #print F.shape
 
             # normalization
-            print np.sign(np.mean(np.sign(F), axis=0))
+            #print np.sign(np.mean(np.sign(F), axis=0))
             F *= -np.sign(np.mean(F, axis=0))
             #F *= -np.sign(F[190,:])
+            #print F
 
             #plt.figure()
             for iv in range(5):
-                plt.subplot2grid(shape=(3,5), loc=(id,iv))
-                plt.imshow(F[:,iv].reshape((20,20)), cmap=plt.get_cmap('Greys'))
+                plt.subplot2grid(shape=(4,5), loc=(id,iv))
+                filter = F[:,iv]#.reshape((20,20))
+                #plt.imshow(filter, cmap=plt.get_cmap('Greys'), interpolation='none')#, vmin=-1e-3, vmax=1e-3)
+                plt.bar(range(512), filter)
 
     # figsize = (20,11)
     # plt.figure(figsize=figsize)

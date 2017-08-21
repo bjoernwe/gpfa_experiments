@@ -6,7 +6,7 @@ import math
 import mkl
 import numpy as np
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters_hi
 
 
@@ -23,7 +23,7 @@ def main():
     results = {}
     results_sfa = {}
     for alg in [eb.Algorithms.HiPFA,
-                eb.Algorithms.HiGPFA
+                #eb.Algorithms.HiGPFA
                 ]:
 
         print(alg)
