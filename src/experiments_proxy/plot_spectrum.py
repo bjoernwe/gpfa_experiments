@@ -75,7 +75,7 @@ def main():
             signal_length = spectrum.shape[0]
             power_spectrum = np.abs(spectrum)[:signal_length//2]
 
-            plt.subplot2grid(shape=(16,8), loc=(idat,ialg))
+            plt.subplot2grid(shape=(len(parameters.dataset_args),8), loc=(idat,ialg))
             plt.plot(power_spectrum, c='b')
             plt.xticks([])
             plt.yticks([])
@@ -83,9 +83,9 @@ def main():
             plt.xlim([-margin, signal_length//2 + margin])
             if idat == 0:
                 plt.title(plot_alg_names[alg], fontsize=12)
-            elif idat == 15:
+            elif idat == len(parameters.dataset_args)-1:
                 plt.xlabel('frequencies')
-            elif idat == 12 and ialg >= 5:
+            elif idat == len(parameters.dataset_args)-4 and ialg >= 5:
                 plt.xlabel('frequencies')
             if ialg == 0:
                 plt.ylabel(eb.get_dataset_name(env=env, ds=dataset), rotation=0, horizontalalignment='right', verticalalignment='top')

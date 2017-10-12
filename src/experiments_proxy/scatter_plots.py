@@ -15,7 +15,8 @@ def main():
     
     mkl.set_num_threads(1)
     
-    plot_alg_names = {eb.Algorithms.Random: 'random',
+    plot_alg_names = {eb.Algorithms.PCA:    'PCA',
+                      eb.Algorithms.Random: 'random',
                       eb.Algorithms.SFA:    'SFA',
                       eb.Algorithms.SFFA:   "SFA'",
                       eb.Algorithms.ForeCA: 'ForeCA',
@@ -24,7 +25,8 @@ def main():
                       }
     
     algs =  [eb.Algorithms.Random,
-             eb.Algorithms.SFA,
+             eb.Algorithms.PCA,
+             #eb.Algorithms.SFA,
              eb.Algorithms.ForeCA,
              eb.Algorithms.PFA,
              eb.Algorithms.GPFA2
@@ -43,7 +45,7 @@ def main():
     for alg in algs:
         
         colors = iter(matplotlib.cm.get_cmap('pink')(np.linspace(0, 1, int(1.25*len(parameters.dataset_args)))))
-        markers = iter(['*', 'o', '^', 'v', '<', '>', 'd', 'D', 's'] * 2)
+        markers = iter(['*', 'o', '^', 'v', '<', '>', 'd', 'D', 's'] * 3)
         
         plt.figure(figsize=(10,6))
 
@@ -58,7 +60,7 @@ def main():
             result = results[alg][dataset].values
             result_sfa = results_sfa[alg][dataset].values
             
-            if True:
+            if False:
                 # average over first dim (output_dim)
                 result = np.mean(result, axis=0, keepdims=True) 
                 result_sfa = np.mean(result_sfa, axis=0, keepdims=True) 

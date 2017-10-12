@@ -7,11 +7,11 @@ import parameters
 
 def main():
 
-    algs = [eb.Algorithms.Random,
+    algs = [#eb.Algorithms.Random,
             eb.Algorithms.SFA,
-            eb.Algorithms.ForeCA,
+            #eb.Algorithms.ForeCA,
             #eb.Algorithms.SFFA,
-            eb.Algorithms.PFA,
+            #eb.Algorithms.PFA,
             eb.Algorithms.GPFA2
             ]
 
@@ -19,7 +19,7 @@ def main():
     results_train = {}
     
     for alg in algs:
-        r = parameters.algorithm_args[alg].get('repetitions', 50)
+        r = 1#parameters.algorithm_args[alg].get('repetitions', 50)
         results_test[alg]  = parameters.get_signals(alg, overide_args={'seed': range(r), 'output_dim': 5})
         results_train[alg] = parameters.get_signals(alg, overide_args={'seed': range(r), 'output_dim': 5, 'use_test_set': False})
         
@@ -36,8 +36,8 @@ def main():
             if not dataset in results_test[alg]:
                 continue
 
-            signals_train = results_train[alg][dataset]['projected_data']
-            signals_test  = results_test[alg][dataset]['projected_data']
+            signals_train = results_train[alg][dataset]['projected_data'][:,:,0] # only first iteration
+            signals_test  = results_test[alg][dataset]['projected_data'][:,:,0]
             N_train = signals_train.shape[0]
             N_test  = signals_test.shape[0]
             print N_train, N_test
@@ -51,7 +51,7 @@ def main():
                 signal_test  = signal_test[:1000]
                 n_train = signal_train.shape[0]
                 n_test  = signal_test.shape[0]
-                sign = np.sign(np.correlate(signal_train, results_train[eb.Algorithms.SFA][dataset]['projected_data'][:,i])[0])
+                sign = np.sign(np.correlate(signal_train, results_train[eb.Algorithms.SFA][dataset]['projected_data'][:,i,0])[0])
                 plt.plot(range(n_train), sign*signal_train, c='b', alpha=alphas[i])
                 plt.plot(range(n_train, n_train+n_test), sign*signal_test, c='r', alpha=alphas[i])
                 plt.ylabel(alg)

@@ -21,17 +21,22 @@ def main():
             eb.Algorithms.HiGPFA
             ]
 
-    #results_angle_random = {}
-    #for min_principal_angle in [False, True]:
-    #    results_angle_random[min_principal_angle] = parameters_hi.get_results(eb.Algorithms.HiRandom, overide_args={
-    #        'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle,
-    #        'use_test_set': False, 'angle_to_hisfa': True})
+    results_angle_random = {}
+    for min_principal_angle in [False, True]:
+        results_angle_random[min_principal_angle] = parameters_hi.get_results(eb.Algorithms.HiRandom,
+                                                                              overide_args={'measure': eb.Measures.angle_to_sfa_signals,
+                                                                                            'min_principal_angle': min_principal_angle,
+                                                                                            'use_test_set': False,
+                                                                                            'angle_to_hisfa': True})
 
     results_angle = {}
     for alg in algs:
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
-            results_angle[alg][min_principal_angle] = parameters_hi.get_results(alg, overide_args={'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle, 'use_test_set': False, 'angle_to_hisfa': True})
+            results_angle[alg][min_principal_angle] = parameters_hi.get_results(alg, overide_args={'measure': eb.Measures.angle_to_sfa_signals,
+                                                                                                   'min_principal_angle': min_principal_angle,
+                                                                                                   'use_test_set': False,
+                                                                                                   'angle_to_hisfa': True})
         
     for _, alg in enumerate(algs):
         
@@ -47,7 +52,7 @@ def main():
                 continue
 
             # angles
-            plt.subplot(1, 3, idx + 1)
+            plt.subplot(1, 4, idx + 1)
             # plt.subplot2grid(shape=(n_algs,4), loc=(a,3))
 
             for min_principal_angle in [False, True]:
@@ -78,7 +83,8 @@ def main():
                 
             idx += 1
 
-        plt.subplots_adjust(hspace=.4, wspace=.15, left=0.16, right=.84, bottom=.25, top=.79)
+        #plt.subplots_adjust(hspace=.4, wspace=.15, left=0.07, right=.96, bottom=.08, top=.92)
+        plt.subplots_adjust(hspace=.4, wspace=.15, left=0.07, right=.96, bottom=.25, top=.79)
         plt.savefig('fig_angles_%s.eps' % plot_alg_names[alg].lower())
         
     plt.show()

@@ -78,14 +78,14 @@ def main():
         results_train[alg] = parameters.get_signals(alg,
                                                     overide_args={'use_test_set': False, 'output_dim': 5, 'seed': 1},#, 'n_train': 10000, 'n_test': 100},
                                                     stack_result=stack_result,
-                                                    dataset_list=[env_data.Datasets.STFT1,
-                                                                  env_data.Datasets.STFT2,
-                                                                  env_data.Datasets.STFT3,
-                                                                  #env_data2d.Datasets.GoProBike,
-                                                                  #env_data2d.Datasets.RatLab,
-                                                                  #env_data2d.Datasets.SpaceInvaders,
-                                                                  #env_data2d.Datasets.Mario,
-                                                                  #env_data2d.Datasets.Traffic
+                                                    dataset_list=[#env_data.Datasets.STFT1,
+                                                                  #env_data.Datasets.STFT2,
+                                                                  #env_data.Datasets.STFT3,
+                                                                  env_data2d.Datasets.GoProBike,
+                                                                  env_data2d.Datasets.RatLab,
+                                                                  env_data2d.Datasets.SpaceInvaders,
+                                                                  env_data2d.Datasets.Mario,
+                                                                  env_data2d.Datasets.Traffic
                                                                   ])
     #for alg in algs_hi:
     #    r = 3#parameters_hi.algorithm_args[alg].get('repetitions', repetitions_hi)
@@ -128,6 +128,17 @@ def main():
             U, W2 = get_features_from_model(model)
             assert W2 is None
 
+            # plot PCA matrix
+            #plt.subplot(1, 3, id+1)
+            #plt.imshow(V, cmap=plt.get_cmap('Greys'), interpolation='none')
+            #continue
+
+            # plot whitening matrix
+            #print np.diag(W)
+            #plt.subplot(1, 3, id+1)
+            #plt.imshow(W, cmap=plt.get_cmap('Greys'), interpolation='none')
+            #continue
+
             #dat1 = data_train.dot(Winv)
             #dat2 = dat1.dot(V.T)
             #print np.cov(dat1.T)
@@ -139,8 +150,9 @@ def main():
             #plt.imshow(np.cov(data_train.T), cmap=plt.get_cmap('Greys'))
             #plt.figure()
             #plt.imshow(np.cov(dat1.T), cmap=plt.get_cmap('Greys'))
-            #plt.figure()
-            #plt.imshow(np.cov(dat2.T), cmap=plt.get_cmap('Greys'))
+            #plt.subplot(1, 3, id+1)
+            #plt.imshow(np.cov(dat2.T), cmap=plt.get_cmap('Greys'), interpolation='none')
+            #continue
 
             if alg is eb.Algorithms.PCA:
                 assert U is None
@@ -150,8 +162,8 @@ def main():
             else:
                 #F = V.dot(Winv.dot(U))
                 F = V.dot(W.dot(U))
-            #assert F.shape == (400, 5)
-            assert F.shape == (512, 5)
+            assert F.shape == (400, 5)
+            #assert F.shape == (512, 5)
             #F = V
             #print F.shape
 
@@ -164,53 +176,10 @@ def main():
             #plt.figure()
             for iv in range(5):
                 plt.subplot2grid(shape=(4,5), loc=(id,iv))
-                filter = F[:,iv]#.reshape((20,20))
-                #plt.imshow(filter, cmap=plt.get_cmap('Greys'), interpolation='none')#, vmin=-1e-3, vmax=1e-3)
-                plt.bar(range(512), filter)
+                filter = F[:,iv].reshape((20,20))
+                plt.imshow(filter, cmap=plt.get_cmap('Greys'), interpolation='none')#, vmin=-1e-3, vmax=1e-3)
+                #plt.bar(range(512), filter)
 
-    # figsize = (20,11)
-    # plt.figure(figsize=figsize)
-    #
-    # for idat, dataset_args in enumerate(parameters.dataset_args):
-    #
-    #     for ialg, alg in enumerate(algs + algs_hi):
-    #
-    #         env = dataset_args['env']
-    #         dataset = dataset_args['dataset']
-    #         if not dataset in results_train[alg]:
-    #             continue
-    #
-    #         spectra_list = []
-    #         if alg is eb.Algorithms.None:
-    #             for input_data in results_train[alg][dataset]['projected_data']:
-    #                 for signal in input_data.T:
-    #                     spectrum = np.fft.fft(signal)
-    #                     spectra_list.append(spectrum)
-    #         else:
-    #             for signal in results_train[alg][dataset]['projected_data'][:,0,:].T:
-    #                 spectrum = np.fft.fft(signal)
-    #                 spectra_list.append(spectrum)
-    #         spectra = np.vstack(spectra_list).T
-    #         spectrum = np.mean(spectra, axis=-1)    # average over repetitions and dimensions
-    #
-    #         signal_length = spectrum.shape[0]
-    #         power_spectrum = np.abs(spectrum)[:signal_length//2]
-    #
-    #         plt.subplot2grid(shape=(16,8), loc=(idat,ialg))
-    #         plt.plot(power_spectrum, c='b')
-    #         plt.xticks([])
-    #         plt.yticks([])
-    #         margin = signal_length // 60
-    #         plt.xlim([-margin, signal_length//2 + margin])
-    #         if idat == 0:
-    #             plt.title(plot_alg_names[alg], fontsize=12)
-    #         elif idat == 15:
-    #             plt.xlabel('frequencies')
-    #         elif idat == 12 and ialg >= 5:
-    #             plt.xlabel('frequencies')
-    #         if ialg == 0:
-    #             plt.ylabel(eb.get_dataset_name(env=env, ds=dataset), rotation=0, horizontalalignment='right', verticalalignment='top')
-        
     #plt.subplots_adjust(left=0.1, right=.99, bottom=0.04, top=.96, wspace=.05)
     #plt.savefig('fig_spectra.eps')
     plt.show()

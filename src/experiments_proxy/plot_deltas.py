@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 #import mkl
 import numpy as np
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters
 
 
@@ -27,7 +27,7 @@ def main():
 
     results = {}
     #for alg in algs:
-    results = parameters.get_signals(eb.Algorithms.SFA, overide_args={'use_test_set': False})
+    results = parameters.get_results(eb.Algorithms.SFA, overide_args={'measure': eb.Measures.delta_ndim})
         
     figsize = (20,11)
     plt.figure(figsize=figsize)

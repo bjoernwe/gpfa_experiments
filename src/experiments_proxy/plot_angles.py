@@ -12,6 +12,8 @@ def main():
 
     mkl.set_num_threads(1)
 
+    use_test_set = False
+
     plot_alg_names = {eb.Algorithms.Random: 'Random',
                       eb.Algorithms.SFA:    'SFA',
                       eb.Algorithms.SFFA:   "SFA'",
@@ -21,7 +23,7 @@ def main():
                       }
 
     algs = [#eb.Algorithms.Random,
-            eb.Algorithms.ForeCA,
+            #eb.Algorithms.ForeCA,
             #eb.Algorithms.SFA,
             #eb.Algorithms.SFFA,
             eb.Algorithms.PFA,
@@ -30,15 +32,27 @@ def main():
 
     results_random = {}
     for min_principal_angle in [False, True]:
-        results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random, overide_args={'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle, 'use_test_set': False})
+        results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random,
+                                                                     overide_args={'measure': eb.Measures.angle_to_sfa_signals,
+                                                                                   'min_principal_angle': min_principal_angle,
+                                                                                   'use_test_set': use_test_set})
 
     results_angle = {}
     for alg in algs:
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
-            results_angle[alg][min_principal_angle] = parameters.get_results(alg, overide_args={
-                'measure': eb.Measures.angle_to_sfa_signals, 'min_principal_angle': min_principal_angle,
-                'use_test_set': False})
+            results_angle[alg][min_principal_angle] = parameters.get_results(alg,
+                                                                             overide_args={
+                                                                                 'measure': eb.Measures.angle_to_sfa_signals,
+                                                                                 'min_principal_angle': min_principal_angle,
+                                                                                 'use_test_set': use_test_set})
+
+    results_delta = {}
+    for alg in algs + [eb.Algorithms.SFA]:
+        s = parameters.default_args_global['seed']
+        r = parameters.algorithm_args[alg]['repetitions']
+        result_signals_dict = parameters.get_signals(alg, overide_args={'seed': range(s,s+r), 'output_dim': 5, 'use_test_set': use_test_set})
+        results_delta[alg] = {ds : eb.prediction_error_on_data(data=r['projected_data'], measure=eb.Measures.delta_ndim) for ds, r in result_signals_dict.items()}
 
     for _, alg in enumerate(algs):
         
@@ -55,7 +69,7 @@ def main():
                 continue
 
             # subplots
-            n_rows = 3 if alg is eb.Algorithms.ForeCA else 4
+            n_rows = 3 if alg is eb.Algorithms.ForeCA else 5
             plt.subplot(n_rows, 4, idx + 1)
             # plt.subplot2grid(shape=(n_algs,4), loc=(a,3))
 
@@ -86,9 +100,14 @@ def main():
                     plt.xlabel('M')
                 else:
                     plt.gca().set_xticklabels([])
-                    
-                # title
-                plt.title(eb.get_dataset_name(env=env, ds=dataset, latex=False), fontsize=12)
+
+            # delta values
+            print results_delta[alg][dataset]
+            plt.scatter(x=range(1,d+1), y=results_delta[alg][dataset])#, marker='.', linestyle='', markersize=20, color='r')
+            plt.scatter(x=range(1,d+1), y=results_delta[eb.Algorithms.SFA][dataset], c='r')
+
+            # title
+            plt.title(eb.get_dataset_name(env=env, ds=dataset, latex=False), fontsize=12)
                 
             idx += 1
 

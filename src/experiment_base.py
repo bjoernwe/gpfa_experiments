@@ -37,7 +37,8 @@ from envs.env_random import EnvRandom
 
 
 # prepare joblib.Memory
-default_cachedir = '/scratch/weghebvc'
+default_cachedir = '/local/weghebvc'
+#default_cachedir = '/scratch/weghebvc'
 #default_cachedir = '/home/weghebvc'
 #default_cachedir = None
 mem = joblib.Memory(cachedir=default_cachedir, verbose=1)
@@ -91,7 +92,7 @@ def prediction_error(measure, env, dataset, algorithm, output_dim, n_train, n_te
                    'seed': seed})
     error = prediction_error_on_data(data=projected_data, measure=measure, model=model,
                                      data_chunks=[data_train, data_test], **kwargs)
-    assert np.isfinite(error)
+    #assert np.isfinite(error)
     return error
 
 
@@ -196,6 +197,7 @@ def prediction_error_on_data(data, measure, model=None, data_chunks=None, **kwar
         dat = data_chunks[1] if kwargs['use_test_set'] else data_chunks[0]
         return calc_min_delta_components(dat, output_dim=kwargs['output_dim'])
     else:
+        print measure
         assert False
 
 
@@ -793,6 +795,12 @@ def get_dataset_name(env, ds, latex=False):
             result = 'AUD_STFT2'
         elif ds is env_data.Datasets.STFT3:
             result = 'AUD_STFT3'
+        elif ds is env_data.Datasets.Spectro1:
+            result = 'AUD_SPECTRO1'
+        elif ds is env_data.Datasets.Spectro2:
+            result = 'AUD_SPECTRO2'
+        elif ds is env_data.Datasets.Spectro3:
+            result = 'AUD_SPECTRO3'
         elif ds is env_data.Datasets.EEG:
             result = 'PHY_EEG_GAL'
         elif ds is env_data.Datasets.EEG2:
