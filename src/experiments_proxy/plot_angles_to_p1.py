@@ -30,15 +30,15 @@ def main():
     
     for alg in algs:
         results_angle[alg] = {}
-        #for min_principal_angle in [False, True]:
-        override_args = {'measure': eb.Measures.angle_to_p1, 
-                         #'min_principal_angle': min_principal_angle,
-                         'principal_angle_idx' : range(5), 
-                         'use_test_set': False,
-                         'output_dim': 5,
-                         'output_dim_max': 5,
-                         'p': search_range_p[alg]}
-        results_angle[alg] = parameters.get_results(alg, overide_args=override_args)
+        for min_principal_angle in [False, True]:
+            override_args = {'measure': eb.Measures.angle_to_p1,
+                             'min_principal_angle': min_principal_angle,
+                             #'principal_angle_idx' : range(5),
+                             'use_test_set': False,
+                             'output_dim': 5,
+                             'output_dim_max': 5,
+                             'p': search_range_p[alg]}
+        results_angle[alg][min_principal_angle] = parameters.get_results(alg, overide_args=override_args)
         
     for _, alg in enumerate(algs):
         
