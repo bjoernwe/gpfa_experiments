@@ -29,12 +29,6 @@ def main():
     search_range_p = {eb.Algorithms.PFA:   [1,2,4,6,8,10],
                       eb.Algorithms.GPFA2: [1,2,4,6]}
 
-    for min_principal_angle in [False, True]:
-        results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random,
-                                                                     overide_args={'measure': eb.Measures.angle_to_sfa_signals,
-                                                                                   'min_principal_angle': min_principal_angle,
-                                                                                   'use_test_set': use_test_set})
-
     results_random = {}
     results_angle = {}
     for alg in algs:
