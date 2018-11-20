@@ -87,7 +87,7 @@ def main():
                 values = results_angle[alg][min_principal_angle][dataset].values * ( 180. / np.pi)
                 d, _ = values.shape
                 plt.errorbar(x=range(1,d+1), y=np.mean(values, axis=1), yerr=np.std(values, axis=1), color='green' if min_principal_angle else 'blue', zorder=10)
-                xlim_max = 5.5 #if alg is eb.Algorithms.ForeCA else 10.5 
+                xlim_max = 5.5 #if alg is eb.Algorithms.ForeCA else 10.5
                 plt.xlim(.5, xlim_max)
                 #plt.ylim(-.2, np.pi/2+.2)
                 plt.ylim(-5, 99)
@@ -110,7 +110,7 @@ def main():
 
             # title
             plt.title(eb.get_dataset_name(env=env, ds=dataset, latex=False), fontsize=12)
-                
+
             idx += 1
 
         if alg is eb.Algorithms.ForeCA:
