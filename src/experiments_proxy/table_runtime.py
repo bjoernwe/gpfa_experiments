@@ -4,7 +4,7 @@ import mkl
 import numpy as np
 import scipy.stats
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters
 import parameters_hi
 
@@ -23,7 +23,7 @@ def main():
     results = {}
     for alg in algs:
         print(alg)
-        results[alg] = parameters.get_results(alg, overide_args={'measure': eb.Measures.ndims, 'output_dim': 5, 'output_dim_max': 5,})
+        results[alg] = parameters.get_results(alg, overide_args={'measure': eb.Measures.ndims, 'output_dim': 5, 'output_dim_max': 5, 'cachedir': '/local/weghevc/timing'})
 
     f = open('table_runtime.tex', 'w+')
     print("""
@@ -45,7 +45,7 @@ Dataset & SFA & ForeCA & PFA & GPFA \\\\
                 #
                 time = np.mean(results[alg][dataset].elapsed_times) # axis 0 = output_dim
                 #time = np.mean(time, axis=-1)
-                print('\\texttt{%E}' % (time/1000.), end='', file=f)
+                print('\\texttt{%.E}' % (time/1000.), end='', file=f)
         print(' \\\\\n', file=f)
     print('\\bottomrule\n', file=f)
     print('\\end{tabular}\n\\end{center}', file=f)

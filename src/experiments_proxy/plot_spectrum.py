@@ -90,19 +90,19 @@ def main():
             if ialg == 0:
                 plt.ylabel(eb.get_dataset_name(env=env, ds=dataset), rotation=0, horizontalalignment='right', verticalalignment='top')
         
-    plt.subplot2grid(shape=(16,8), loc=(0,2))
+    plt.subplot2grid(shape=(17,8), loc=(0,2))
     plt.title('ForeCA', fontsize=12)
     plt.gca().axis('off')
 
-    plt.subplot2grid(shape=(16,8), loc=(0,5))
+    plt.subplot2grid(shape=(17,8), loc=(0,5))
     plt.title('hSFA', fontsize=12)
     plt.gca().axis('off')
 
-    plt.subplot2grid(shape=(16,8), loc=(0,6))
+    plt.subplot2grid(shape=(17,8), loc=(0,6))
     plt.title('hPFA', fontsize=12)
     plt.gca().axis('off')
 
-    plt.subplot2grid(shape=(16,8), loc=(0,7))
+    plt.subplot2grid(shape=(17,8), loc=(0,7))
     plt.title('hGPFA', fontsize=12)
     plt.gca().axis('off')
 

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import mkl
 import numpy as np
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters_hi
 
 
@@ -17,14 +17,13 @@ def main():
             #eb.Algorithms.HiPFA,
             #eb.Algorithms.HiGPFA,
             ]
-    repetition_index = 0
 
     results_test  = {}
     results_train = {}
     
     for alg in algs:
-        results_test[alg]  = parameters_hi.get_signals(alg, overide_args={}, repetition_index=repetition_index)
-        results_train[alg] = parameters_hi.get_signals(alg, overide_args={'use_test_set': False}, repetition_index=repetition_index)
+        results_test[alg]  = parameters_hi.get_signals(alg, overide_args={'seed': [0], 'output_dim': 1})
+        results_train[alg] = parameters_hi.get_signals(alg, overide_args={'seed': [0], 'output_dim': 1, 'use_test_set': False})
         
     alphas = np.linspace(0, 1, 11)[::-1]
 
@@ -45,16 +44,16 @@ def main():
             N_test  = signals_test.shape[0]
             print N_train, N_test
 
-            plt.subplot(4, 4, ids+1)
+            plt.subplot(4, 1, ids+1)
             
-            for i in range(3)[::-1]:
+            for i in range(1)[::-1]:
                 signal_train = signals_train[:,i]
                 signal_test  = signals_test[:,i]
                 signal_train = signal_train[-10000:]
                 signal_test  = signal_test[:10000]
                 n_train = signal_train.shape[0]
                 n_test  = signal_test.shape[0]
-                sign = np.sign(np.correlate(signal_train, results_train[eb.Algorithms.HiSFA][dataset]['projected_data'][:,i])[0])
+                sign = 1#np.sign(np.correlate(signal_train, results_train[eb.Algorithms.HiSFA][dataset]['projected_data'][:,i])[0])
                 plt.plot(range(n_train), sign*signal_train, c='b', alpha=alphas[i])
                 plt.plot(range(n_train, n_train+n_test), sign*signal_test, c='r', alpha=alphas[i])
                 plt.ylabel(alg)

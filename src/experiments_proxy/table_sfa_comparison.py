@@ -58,6 +58,8 @@ Dataset & ForeCA & PFA & GPFA & hPFA & hGPFA \\\\
     for dataset_args in parameters.dataset_args:
         env = dataset_args['env']
         dataset = dataset_args['dataset']
+        if dataset is None:
+            print('\\midrule\n', file=f)
         print('\\texttt{%s}' % eb.get_dataset_name(env=env, ds=dataset, latex=True), end='', file=f)
         # linear
         for alg in results.keys():
@@ -70,7 +72,8 @@ Dataset & ForeCA & PFA & GPFA & hPFA & hGPFA \\\\
                 samples_sfa  = np.mean(results_sfa[alg][dataset].values, axis=0)
                 #samples_sffa = np.mean(results_sffa[alg][dataset].values, axis=0)
                 symbol = evaluate(samples0=samples_sfa, samples1=samples_alg, inverse=alg is eb.Algorithms.ForeCA)
-                symbol_stats[symbol] = symbol_stats.get(symbol, 0) + 1
+                if dataset is not None:
+                    symbol_stats[symbol] = symbol_stats.get(symbol, 0) + 1
                 #symbol_sffa = evaluate(samples0=samples_sffa, samples1=samples_alg, inverse=alg is eb.Algorithms.ForeCA)
                 print(symbol, end='', file=f)
                 #if symbol_sffa != symbol:
@@ -85,7 +88,8 @@ Dataset & ForeCA & PFA & GPFA & hPFA & hGPFA \\\\
                 samples_hisfa  = np.mean(results_hisfa[alg][dataset].values, axis=0)
                 #samples_hisffa = np.mean(results_hisffa[alg][dataset].values, axis=0)
                 symbol_hi = evaluate(samples0=samples_hisfa, samples1=samples_hialg)
-                symbol_stats[symbol_hi] = symbol_stats.get(symbol_hi, 0) + 1
+                if dataset is not None:
+                    symbol_stats[symbol_hi] = symbol_stats.get(symbol_hi, 0) + 1
                 #symbol_hisffa = evaluate(samples0=samples_hisffa, samples1=samples_hialg)
                 print(symbol_hi, end='', file=f)
                 #if symbol_hisffa != symbol_hi:
