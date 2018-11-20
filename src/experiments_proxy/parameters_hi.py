@@ -55,11 +55,11 @@ algorithm_args = {eb.Algorithms.HiRandom: {},
                                            'k_eval': 10}
                   }
 
-dataset_args_hi = [#{'env': EnvData2D, 'dataset': env_data2d.Datasets.GoProBike,     'scaling': (50,50), 'window': ((0,45),( 90,115)), 'pca': 1., 'whitening': False},
+dataset_args_hi = [{'env': EnvData2D, 'dataset': env_data2d.Datasets.GoProBike,     'scaling': (50,50), 'window': ((0,45),( 90,115)), 'pca': 1., 'whitening': False},
                    {'env': EnvData2D, 'dataset': env_data2d.Datasets.SpaceInvaders, 'scaling': (50,50), 'window': ((0,14),( 52, 66)), 'pca': 1., 'whitening': False},
                    {'env': EnvData2D, 'dataset': env_data2d.Datasets.Mario,         'scaling': (50,50), 'window': ((0,20),(120,140)), 'pca': 1., 'whitening': False},
                    {'env': EnvData2D, 'dataset': env_data2d.Datasets.Traffic,       'scaling': (50,50), 'window': ((0,30),( 90,120)), 'pca': 1., 'whitening': False},
-                   {'env': EnvRandom, 'dataset': None, 'ndim': 2500, 'pca': 1},
+                   #{'env': EnvRandom, 'dataset': None, 'ndim': 2500, 'pca': 1},
                    ]
 
 # extracting 10 dimensions when dim >= 20, extracting 5 otherwise
@@ -68,7 +68,7 @@ dataset_args_hi = [#{'env': EnvData2D, 'dataset': env_data2d.Datasets.GoProBike,
 #                        env_data2d.Datasets.SpaceInvaders: default_args_low}
 
 # results from grid-search
-algorithm_parameters = {eb.Algorithms.HiPFA: {env_data2d.Datasets.GoProBike: {'p': 4, 'K': 0},
+algorithm_parameters = {eb.Algorithms.HiPFA: {env_data2d.Datasets.GoProBike: {'p': 2, 'K': 0},
                                               env_data2d.Datasets.SpaceInvaders: {'p': 1, 'K': 0},
                                               env_data2d.Datasets.Mario: {'p': 2, 'K': 0},
                                               env_data2d.Datasets.Traffic: {'p': 1, 'K': 1},

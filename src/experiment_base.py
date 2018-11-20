@@ -445,7 +445,7 @@ def train_hi_sffa(data_train, image_shape, output_dim, expansion, channels_xy_1,
     return flow
 
 
-@mem.cache
+#@mem.cache
 def train_hi_pfa(data_train, p, K, image_shape, output_dim, expansion, channels_xy_1, 
                  spacing_xy_1, channels_xy_n, spacing_xy_n, node_output_dim):
     # rev: 10
@@ -765,7 +765,7 @@ def calc_angle_to_sfa_signals(data, **kwargs):
 def calc_angle_to_p1(data, **kwargs):
     kwargs['p'] = 1
     signals, _, _, _ = calc_projected_data(**kwargs)
-    return principal_angles(signals, data)[kwargs['principal_angle_idx']]  
+    return principal_angles(signals, data)[0 if kwargs.get('min_principal_angle') else -1]
 
 
 #@echo

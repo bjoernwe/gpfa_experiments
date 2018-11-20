@@ -60,7 +60,7 @@ def main():
             result = results[alg][dataset].values
             result_sfa = results_sfa[alg][dataset].values
             
-            if False:
+            if True:
                 # average over first dim (output_dim)
                 result = np.mean(result, axis=0, keepdims=True) 
                 result_sfa = np.mean(result_sfa, axis=0, keepdims=True) 
@@ -109,7 +109,7 @@ def main():
         if alg is eb.Algorithms.ForeCA:
             measure_label = 'forcastability of'
         elif alg is eb.Algorithms.Random:
-            measure_label = 'delta values'
+            measure_label = 'delta values on'
         measure_limits = [1e0, 1e2] if alg is eb.Algorithms.ForeCA else [1e-4, 1e2]
         plt.plot(measure_limits, measure_limits, '-', c='gray', zorder=3)
         plt.suptitle(plot_alg_names[alg])

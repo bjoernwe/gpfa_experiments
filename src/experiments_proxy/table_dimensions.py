@@ -4,7 +4,7 @@ import numpy as np
 
 import envs.env_random
 
-import experiments_proxy.experiment_base_proxy as eb
+import experiment_base as eb
 import parameters
 
 
@@ -31,11 +31,13 @@ Dataset & $S$ & $S_\\textrm{train}$ & $S_\\textrm{test}$ & $N$ & $N'$ \\\\
         #kwargs['algorithm'] = alg
         #kwargs['measure'] = algorithm_measures[alg]
         kwargs.update(dataset_args)
-        kwargs.update(parameters.dataset_default_args.get(dataset, {}))
+        #kwargs.update(parameters.dataset_default_args.get(dataset, {}))
         #kwargs.update(algorithm_parameters.get(alg, {}).get(dataset, {}))
-        #kwargs.update(algorithm_args.get(alg, {}))
+        #kwargs.update(parameters.algorithm_args.get(alg, {}))
         #kwargs.update(overide_args)
-        
+
+        if dataset is None:
+            print('\\midrule\n', file=f)
         print('\\texttt{%s}' % eb.get_dataset_name(env=env, ds=dataset, latex=True), end='', file=f)
         print(' & ', end='', file=f)
         if env is envs.env_random.EnvRandom:

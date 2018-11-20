@@ -160,7 +160,7 @@ algorithm_parameters = {eb.Algorithms.PFA: {env_data.Datasets.STFT1: {'p': 10, '
                                             env_data.Datasets.PHYSIO_MGH: {'p': 10, 'K': 0},
                                             env_data.Datasets.PHYSIO_MMG: {'p': 2, 'K': 0},
                                             env_data.Datasets.PHYSIO_UCD: {'p': 8, 'K': 0},
-                                            env_data2d.Datasets.GoProBike: {'p': 4, 'K': 0},
+                                            env_data2d.Datasets.GoProBike: {'p': 2, 'K': 0},
                                             env_data2d.Datasets.SpaceInvaders: {'p': 1, 'K': 0},
                                             env_data2d.Datasets.Mario: {'p': 2, 'K': 0},
                                             env_data2d.Datasets.Traffic: {'p': 1, 'K': 1},

@@ -12,6 +12,8 @@ def main():
 
     mkl.set_num_threads(1)
 
+    use_test_set = False
+
     plot_alg_names = {eb.Algorithms.HiSFA:  'hSFA',
                       eb.Algorithms.HiPFA:  'hPFA',
                       eb.Algorithms.HiGPFA: 'hGPFA',
@@ -70,11 +72,11 @@ def main():
                 plt.xlim(.5, 5.5)
                 plt.ylim(-.2, np.pi/2+.2)
                 if idx % 4 == 0:
-                    plt.ylabel('angle')
+                    plt.ylabel('angle [deg]')
                 else:
                     plt.gca().set_yticklabels([])
                 if idx >= 0:
-                    plt.xlabel('# dimensions')
+                    plt.xlabel('M')
                 else:
                     plt.gca().set_xticklabels([])
                     
