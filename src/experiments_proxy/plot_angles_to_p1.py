@@ -32,9 +32,12 @@ def main():
     results_random = {}
     for min_principal_angle in [False, True]:
         results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random,
-                                                                     overide_args={'measure': eb.Measures.angle_to_sfa_signals,
+                                                                     overide_args={'measure': eb.Measures.angle_to_p1,
                                                                                    'min_principal_angle': min_principal_angle,
-                                                                                   'use_test_set': use_test_set})
+                                                                                   'use_test_set': use_test_set,
+										   'output_dim': 5,
+						                                   'output_dim_max': 5,
+										   'p': search_range_p[alg]})
 
     results_angle = {}
     for alg in algs:
@@ -71,7 +74,6 @@ def main():
 
                 # random
                 values_random = results_random[min_principal_angle][dataset].values * ( 180. / np.pi)
-                d, _ = values_random.shape
                 plt.errorbar(x=search_range_p[alg], y=np.mean(values_random, axis=1), yerr=np.std(values_random, axis=1), color='silver', ls='--', dashes=(5,2), zorder=0)
 
             for min_principal_angle in [False, True]:
