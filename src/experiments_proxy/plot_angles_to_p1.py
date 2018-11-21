@@ -32,6 +32,7 @@ def main():
     results_random = {}
     results_angle = {}
     for alg in algs:
+	results_random[alg] = {}
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
             override_args = {'measure': eb.Measures.angle_to_p1,
@@ -40,15 +41,15 @@ def main():
                              'output_dim': 5,
                              'output_dim_max': 5,
                              'p': search_range_p[alg]}
-            results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random, overide_args=override_args)
+            results_random[alg][min_principal_angle] = parameters.get_results(eb.Algorithms.Random, overide_args=override_args)
             results_angle[alg][min_principal_angle]  = parameters.get_results(alg, overide_args=override_args)
 
     for _, alg in enumerate(algs):
-        
+
         figsize = (10,3.2) if alg is eb.Algorithms.ForeCA else (10,6)
         plt.figure(figsize=figsize)
         plt.suptitle(plot_alg_names[alg])
-            
+
         idx = 0
         for _, dataset_args in enumerate(parameters.dataset_args):
 
@@ -65,7 +66,7 @@ def main():
             for min_principal_angle in [False, True]:
 
                 # random
-                values_random = results_random[min_principal_angle][dataset].values * ( 180. / np.pi)
+                values_random = results_random[alg][min_principal_angle][dataset].values * ( 180. / np.pi)
                 plt.errorbar(x=search_range_p[alg], y=np.mean(values_random, axis=1), yerr=np.std(values_random, axis=1), color='silver', ls='--', dashes=(5,2), zorder=0)
 
             for min_principal_angle in [False, True]:
@@ -74,7 +75,7 @@ def main():
                 values = results_angle[alg][min_principal_angle][dataset].values * ( 180. / np.pi)
                 d, _ = values.shape
                 plt.errorbar(x=search_range_p[alg], y=np.mean(values, axis=1), yerr=np.std(values, axis=1), color='green' if min_principal_angle else 'blue', zorder=10)
-                xlim_max = 4.5 if alg is eb.Algorithms.GPFA2 else 6.5
+                xlim_max = 6.5 if alg is eb.Algorithms.GPFA2 else 10.5
                 plt.xlim(.5, xlim_max)
                 #plt.ylim(-.2, np.pi/2+.2)
                 plt.ylim(-5, 99)
