@@ -41,8 +41,8 @@ def main():
                              'output_dim': 5,
                              'output_dim_max': 5,
                              'p': search_range_p[alg]}
-        results_random[alg][min_principal_angle] = parameters.get_results(alg, overide_args=override_args)
-        results_angle[alg][min_principal_angle]  = parameters.get_results(alg, overide_args=override_args)
+            results_random[alg][min_principal_angle] = parameters.get_results(alg, overide_args=override_args)
+            results_angle[alg][min_principal_angle]  = parameters.get_results(alg, overide_args=override_args)
         
     for _, alg in enumerate(algs):
         
@@ -103,7 +103,7 @@ def main():
             plt.subplots_adjust(hspace=.4, wspace=.15, left=0.07, right=.96, bottom=.08, top=.92)
             
         plt.savefig('fig_angles_to_p1_%s.eps' % plot_alg_names[alg].lower())
-    plt.show()
+    #plt.show()
 
 
 
