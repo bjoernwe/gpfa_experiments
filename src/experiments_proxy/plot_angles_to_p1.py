@@ -30,15 +30,6 @@ def main():
                       eb.Algorithms.GPFA2: [1,2,4,6]}
 
     results_random = {}
-    for min_principal_angle in [False, True]:
-        results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random,
-                                                                     overide_args={'measure': eb.Measures.angle_to_p1,
-                                                                                   'min_principal_angle': min_principal_angle,
-                                                                                   'use_test_set': use_test_set,
-										   'output_dim': 5,
-						                                   'output_dim_max': 5,
-										   'p': search_range_p[alg]})
-
     results_angle = {}
     for alg in algs:
         results_angle[alg] = {}
@@ -49,8 +40,9 @@ def main():
                              'output_dim': 5,
                              'output_dim_max': 5,
                              'p': search_range_p[alg]}
+            results_random[min_principal_angle] = parameters.get_results(eb.Algorithms.Random, overide_args=override_args)
             results_angle[alg][min_principal_angle]  = parameters.get_results(alg, overide_args=override_args)
-        
+
     for _, alg in enumerate(algs):
         
         figsize = (10,3.2) if alg is eb.Algorithms.ForeCA else (10,6)
