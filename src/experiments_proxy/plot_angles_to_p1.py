@@ -29,10 +29,8 @@ def main():
     search_range_p = {eb.Algorithms.PFA:   [1,2,4,6,8,10],
                       eb.Algorithms.GPFA2: [1,2,4,6]}
 
-    results_random = {}
     results_angle = {}
     for alg in algs:
-        results_random[alg] = {}
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
             override_args = {'measure': eb.Measures.angle_to_p1,
@@ -41,7 +39,6 @@ def main():
                              'output_dim': 5,
                              'output_dim_max': 5,
                              'p': search_range_p[alg]}
-            results_random[alg][min_principal_angle] = parameters.get_results(alg, overide_args=override_args)
             results_angle[alg][min_principal_angle]  = parameters.get_results(alg, overide_args=override_args)
         
     for _, alg in enumerate(algs):
