@@ -32,7 +32,7 @@ def main():
     results_random = {}
     results_angle = {}
     for alg in algs:
-	results_random[alg] = {}
+    results_random[alg] = {}
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
             override_args = {'measure': eb.Measures.angle_to_p1,
@@ -73,7 +73,6 @@ def main():
 
                 # angles
                 values = results_angle[alg][min_principal_angle][dataset].values * ( 180. / np.pi)
-                d, _ = values.shape
                 plt.errorbar(x=search_range_p[alg], y=np.mean(values, axis=1), yerr=np.std(values, axis=1), color='green' if min_principal_angle else 'blue', zorder=10)
                 xlim_max = 6.5 if alg is eb.Algorithms.GPFA2 else 10.5
                 plt.xlim(.5, xlim_max)
