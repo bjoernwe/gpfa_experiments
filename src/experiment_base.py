@@ -763,6 +763,7 @@ def calc_angle_to_sfa_signals(data, **kwargs):
 @echo
 #@mem.cache
 def calc_angle_to_p1(data, **kwargs):
+    #kwargs['seed'] = kwargs['seed'] + (hash(str(kwargs.get('p', 0))) % 1000000000)
     kwargs['p'] = 1
     signals, _, _, _ = calc_projected_data(**kwargs)
     return principal_angles(signals, data)[0 if kwargs.get('min_principal_angle') else -1]
