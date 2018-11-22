@@ -32,7 +32,7 @@ def main():
     results_random = {}
     results_angle = {}
     for alg in algs:
-    results_random[alg] = {}
+    	results_random[alg] = {}
         results_angle[alg] = {}
         for min_principal_angle in [False, True]:
             override_args = {'measure': eb.Measures.angle_to_p1,

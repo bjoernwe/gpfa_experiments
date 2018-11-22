@@ -259,7 +259,7 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
         return train_random(data_train=data_train, 
                     output_dim=output_dim, 
                     seed=seed,
-                    seed2=kwargs['seed2'])
+                    seed2=kwargs.get('seed2',0))
                     #repetition_index=repetition_index)
     elif algorithm == Algorithms.SFA:
         return train_sfa(data_train=data_train, output_dim=output_dim)
@@ -354,10 +354,10 @@ def train_model(algorithm, data_train, output_dim, seed, **kwargs):
 
 
 #@mem.cache
-def train_random(data_train, output_dim, seed):#, repetition_index):
+def train_random(data_train, output_dim, seed, seed2):#, repetition_index):
     # rev: 2
     #fargs = update_seed_argument(output_dim=output_dim, repetition_index=repetition_index, seed=seed)
-    model = random_node.RandomProjection(output_dim=output_dim, seed=seed)
+    model = random_node.RandomProjection(output_dim=output_dim, seed=seed+seed2)
     model.train(data_train)
     return model
 
@@ -765,7 +765,7 @@ def calc_angle_to_sfa_signals(data, **kwargs):
 #@mem.cache
 def calc_angle_to_p1(data, **kwargs):
     #kwargs['seed'] = kwargs['seed'] + (hash(str(kwargs.get('p', 0))) % 1000000000)
-    kwargs['seed2'] = (hash(str(kwargs.get('p', 0))) % 1000000000)
+    kwargs['seed2'] = 100000 #(hash(str(kwargs.get('p', 0))) % 1000000000)
     kwargs['p'] = 1
     signals, _, _, _ = calc_projected_data(**kwargs)
     return principal_angles(signals, data)[0 if kwargs.get('min_principal_angle') else -1]
